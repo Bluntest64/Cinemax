@@ -1,0 +1,1952 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CINEMAX – Tu Experiencia de Cine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --neon-blue:   #00d4ff;
+  --neon-pink:   #ff006e;
+  --neon-gold:   #ffd700;
+  --neon-purple: #bf00ff;
+  --neon-green:  #00ff9f;
+  --dark-bg:     #030508;
+  --card-bg:     #0a0d14;
+  --card-border: #1a1f2e;
+  --text-main:   #e8eaf6;
+  --text-dim:    #7986cb;
+  --glass:       rgba(0,212,255,0.05);
+  --glass-border:rgba(0,212,255,0.15);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Rajdhani',sans-serif;background:var(--dark-bg);color:var(--text-main);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 20% 0%,rgba(0,212,255,.08),transparent 60%),radial-gradient(ellipse 60% 40% at 80% 100%,rgba(191,0,255,.07),transparent 60%),radial-gradient(ellipse 40% 30% at 50% 50%,rgba(255,0,110,.04),transparent 60%);pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.08) 2px,rgba(0,0,0,.08) 4px);pointer-events:none;z-index:1;}
+
+/* ─── LOGIN SCREEN ─── */
+#login-screen{
+  position:fixed;inset:0;z-index:9500;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse 120% 120% at 50% 0%,rgba(191,0,255,.12),transparent 70%),var(--dark-bg);
+  padding:1rem;
+}
+#login-screen.hidden{display:none;}
+.login-card{
+  background:var(--card-bg);
+  border:1px solid var(--glass-border);
+  border-radius:16px;
+  padding:2.5rem;
+  width:100%;max-width:440px;
+  box-shadow:0 0 80px rgba(191,0,255,.15),0 40px 80px rgba(0,0,0,.8);
+  animation:modalSlide .4s cubic-bezier(.4,0,.2,1);
+  position:relative;overflow:hidden;
+}
+.login-card::before{
+  content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:conic-gradient(from 0deg at 50% 50%,transparent 0deg,rgba(191,0,255,.04) 60deg,transparent 120deg);
+  animation:rotateBg 12s linear infinite;pointer-events:none;
+}
+.login-logo{text-align:center;margin-bottom:2rem;}
+.login-logo-text{font-family:'Bebas Neue',sans-serif;font-size:3rem;letter-spacing:4px;background:linear-gradient(135deg,var(--neon-purple),var(--neon-blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 15px rgba(191,0,255,.5));}
+.login-logo-sub{font-family:'Orbitron',sans-serif;font-size:.55rem;letter-spacing:5px;color:var(--text-dim);display:block;margin-top:-4px;}
+.login-welcome{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:3px;color:#fff;text-align:center;margin-bottom:.3rem;}
+.login-sub{color:var(--text-dim);font-size:.88rem;text-align:center;margin-bottom:2rem;letter-spacing:.5px;}
+.login-label{font-family:'Orbitron',sans-serif;font-size:.6rem;letter-spacing:3px;color:var(--neon-purple);text-transform:uppercase;margin-bottom:.5rem;display:block;}
+.login-input{
+  width:100%;padding:.85rem 1.2rem;
+  background:rgba(191,0,255,.03);border:1px solid var(--glass-border);border-radius:8px;
+  color:var(--text-main);font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:600;
+  outline:none;transition:all .3s;margin-bottom:1.1rem;
+}
+.login-input:focus{border-color:var(--neon-purple);box-shadow:0 0 20px rgba(191,0,255,.2);}
+.login-input::placeholder{color:var(--text-dim);}
+.login-btn{
+  width:100%;padding:1.1rem;
+  background:linear-gradient(135deg,var(--neon-purple),var(--neon-blue));
+  border:none;border-radius:8px;color:#fff;
+  font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:3px;
+  cursor:pointer;transition:all .3s;
+  box-shadow:0 0 30px rgba(191,0,255,.3);
+  position:relative;overflow:hidden;
+}
+.login-btn::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(45deg,transparent,rgba(255,255,255,.1),transparent);transform:translateX(-100%);transition:transform .6s;}
+.login-btn:hover::before{transform:translateX(100%);}
+.login-btn:hover{box-shadow:0 0 50px rgba(191,0,255,.5);transform:translateY(-2px);}
+.login-error{color:var(--neon-pink);font-size:.82rem;text-align:center;margin-top:.75rem;min-height:1.2em;font-family:'Orbitron',sans-serif;letter-spacing:1px;display:none;}
+.login-error.visible{display:block;}
+.login-divider{display:flex;align-items:center;gap:.75rem;margin:1.2rem 0;}
+.login-divider-line{flex:1;height:1px;background:var(--card-border);}
+.login-divider-text{font-size:.7rem;color:var(--text-dim);font-family:'Orbitron',sans-serif;letter-spacing:2px;}
+.login-hint{text-align:center;font-size:.78rem;color:var(--text-dim);letter-spacing:.5px;}
+.login-hint strong{color:var(--neon-blue);}
+/* Logged-in state for navbar */
+/* ─── ZONE TABS (seat map) ─── */
+.zone-tabs{display:flex;gap:.5rem;margin-bottom:1rem;}
+.zone-tab{
+  flex:1;padding:.6rem .5rem;border-radius:6px;border:1px solid;
+  font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:2px;
+  cursor:pointer;transition:all .3s;line-height:1.3;text-align:center;background:transparent;
+}
+.zone-tab small{font-family:'Orbitron',sans-serif;font-size:.5rem;letter-spacing:1px;display:block;margin-top:.1rem;}
+.zone-tab.normal-tab{border-color:rgba(0,212,255,.35);color:var(--neon-blue);}
+.zone-tab.normal-tab.active,.zone-tab.normal-tab:hover{background:rgba(0,212,255,.15);border-color:var(--neon-blue);box-shadow:0 0 14px rgba(0,212,255,.25);}
+.zone-tab.vip-tab{border-color:rgba(255,215,0,.35);color:var(--neon-gold);}
+.zone-tab.vip-tab.active,.zone-tab.vip-tab:hover{background:rgba(255,215,0,.15);border-color:var(--neon-gold);box-shadow:0 0 14px rgba(255,215,0,.25);}
+.zone-tab.ultra-tab{border-color:rgba(255,0,110,.35);color:var(--neon-pink);}
+.zone-tab.ultra-tab.active,.zone-tab.ultra-tab:hover{background:rgba(255,0,110,.15);border-color:var(--neon-pink);box-shadow:0 0 14px rgba(255,0,110,.25);}
+.zone-panel{animation:fadeIn .3s ease;}
+.zone-panel.hidden-zone{display:none;}
+.zone-panel-header{font-family:'Orbitron',sans-serif;font-size:.6rem;letter-spacing:3px;text-align:center;margin-bottom:.75rem;padding:.35rem;border-radius:4px;}
+.normal-header{color:var(--neon-blue);background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.2);}
+.vip-header{color:var(--neon-gold);background:rgba(255,215,0,.07);border:1px solid rgba(255,215,0,.2);}
+.ultra-header{color:var(--neon-pink);background:rgba(255,0,110,.07);border:1px solid rgba(255,0,110,.2);}
+
+/* ─── USER DROPDOWN ─── */
+.user-menu-wrap{position:relative;}
+.nav-user-badge{
+  display:flex;align-items:center;gap:.5rem;padding:.4rem 1rem;
+  border:1px solid rgba(191,0,255,.4);border-radius:4px;
+  color:#d580ff;font-size:.75rem;letter-spacing:1px;text-transform:uppercase;
+  font-family:'Orbitron',sans-serif;cursor:pointer;transition:all .3s;
+  user-select:none;
+}
+.nav-user-badge:hover{border-color:var(--neon-purple);box-shadow:0 0 14px rgba(191,0,255,.3);}
+.nav-user-badge .ucaret{font-size:.55rem;margin-left:.15rem;transition:transform .3s;display:inline-block;}
+.nav-user-badge.open .ucaret{transform:rotate(180deg);}
+.user-dropdown{
+  position:absolute;top:calc(100% + 8px);right:0;
+  background:var(--card-bg);border:1px solid var(--glass-border);
+  border-radius:10px;width:270px;
+  box-shadow:0 0 40px rgba(191,0,255,.2),0 20px 40px rgba(0,0,0,.7);
+  z-index:2000;overflow:hidden;
+  animation:modalSlide .25s cubic-bezier(.4,0,.2,1);
+  display:none;
+}
+.user-dropdown.open{display:block;}
+.ud-header{padding:1rem 1.2rem;border-bottom:1px solid var(--card-border);background:rgba(191,0,255,.05);}
+.ud-email{font-family:'Orbitron',sans-serif;font-size:.58rem;color:var(--neon-purple);letter-spacing:1px;word-break:break-all;}
+.ud-name{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:#fff;letter-spacing:2px;margin-top:.2rem;}
+.ud-role{font-size:.65rem;color:var(--text-dim);letter-spacing:1px;margin-top:.1rem;}
+.ud-divider{height:1px;background:var(--card-border);margin:.2rem 0;}
+.ud-item{
+  display:flex;align-items:center;gap:.75rem;padding:.7rem 1.2rem;
+  cursor:pointer;transition:background .2s;
+  font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:600;
+  color:var(--text-main);letter-spacing:.5px;
+}
+.ud-item:hover{background:rgba(255,255,255,.05);}
+.ud-item .ud-icon{font-size:1rem;width:20px;text-align:center;flex-shrink:0;}
+.ud-item.logout{color:var(--neon-pink);}
+.ud-item.logout:hover{background:rgba(255,0,110,.08);}
+.ud-accounts-label{font-family:'Orbitron',sans-serif;font-size:.55rem;letter-spacing:3px;color:var(--text-dim);padding:.5rem 1.2rem .3rem;display:block;border-top:1px solid var(--card-border);}
+.ud-account-item{
+  display:flex;align-items:center;gap:.75rem;padding:.55rem 1.2rem;
+  cursor:pointer;transition:background .2s;
+}
+.ud-account-item:hover{background:rgba(255,255,255,.05);}
+.ud-account-avatar{
+  width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-size:.85rem;flex-shrink:0;color:#fff;
+}
+.ud-account-info{flex:1;min-width:0;}
+.ud-account-name{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.88rem;color:var(--text-main);}
+.ud-account-email{font-size:.62rem;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px;}
+.ud-account-check{font-size:.8rem;color:var(--neon-green);flex-shrink:0;}
+
+/* ─── SEAT MAP ─── */
+.seat-map-section{margin-bottom:1.5rem;}
+.seat-map-label{font-family:'Orbitron',sans-serif;font-size:.65rem;letter-spacing:3px;color:var(--neon-blue);text-transform:uppercase;margin-bottom:1rem;}
+.screen-bar{
+  width:75%;margin:0 auto .6rem;height:6px;
+  background:linear-gradient(90deg,transparent,var(--neon-blue),var(--neon-purple),var(--neon-blue),transparent);
+  border-radius:3px;box-shadow:0 0 18px rgba(0,212,255,.5);
+}
+.screen-label{text-align:center;font-family:'Orbitron',sans-serif;font-size:.55rem;letter-spacing:4px;color:var(--text-dim);margin-bottom:1.2rem;}
+.seat-grid{display:flex;flex-direction:column;gap:.35rem;align-items:center;}
+.seat-row{display:flex;align-items:center;gap:.3rem;}
+.row-label{font-family:'Orbitron',sans-serif;font-size:.55rem;color:var(--text-dim);width:16px;text-align:center;flex-shrink:0;}
+.seat{
+  width:22px;height:22px;border-radius:4px 4px 2px 2px;
+  border:1px solid;cursor:pointer;
+  transition:all .2s;display:flex;align-items:center;justify-content:center;
+  font-size:.55rem;font-family:'Orbitron',sans-serif;
+  position:relative;
+}
+.seat.available-normal{border-color:rgba(0,212,255,.4);background:rgba(0,212,255,.06);color:var(--neon-blue);}
+.seat.available-normal:hover{background:rgba(0,212,255,.25);border-color:var(--neon-blue);transform:scale(1.15);box-shadow:0 0 8px rgba(0,212,255,.4);}
+.seat.available-vip{border-color:rgba(255,215,0,.4);background:rgba(255,215,0,.06);color:var(--neon-gold);}
+.seat.available-vip:hover{background:rgba(255,215,0,.25);border-color:var(--neon-gold);transform:scale(1.15);box-shadow:0 0 8px rgba(255,215,0,.4);}
+.seat.available-ultra{border-color:rgba(255,0,110,.4);background:rgba(255,0,110,.06);color:var(--neon-pink);}
+.seat.available-ultra:hover{background:rgba(255,0,110,.25);border-color:var(--neon-pink);transform:scale(1.15);box-shadow:0 0 8px rgba(255,0,110,.4);}
+.seat.occupied{border-color:rgba(255,255,255,.1);background:rgba(255,255,255,.04);cursor:not-allowed;color:rgba(255,255,255,.15);}
+.seat.selected-seat{transform:scale(1.18);box-shadow:0 0 14px rgba(255,215,0,.7);border-color:var(--neon-gold)!important;background:rgba(255,215,0,.3)!important;color:var(--neon-gold)!important;}
+.seat-aisle{width:14px;}
+.seat-legend{display:flex;gap:1rem;flex-wrap:wrap;margin-top:.8rem;justify-content:center;}
+.seat-legend-item{display:flex;align-items:center;gap:.35rem;font-size:.65rem;color:var(--text-dim);font-family:'Orbitron',sans-serif;letter-spacing:.5px;}
+.seat-legend-dot{width:12px;height:12px;border-radius:3px;border:1px solid;}
+.legend-normal{border-color:var(--neon-blue);background:rgba(0,212,255,.12);}
+.legend-vip{border-color:var(--neon-gold);background:rgba(255,215,0,.12);}
+.legend-ultra{border-color:var(--neon-pink);background:rgba(255,0,110,.12);}
+.legend-occupied{border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.05);}
+.legend-selected{border-color:var(--neon-gold);background:rgba(255,215,0,.3);}
+.selected-seat-info{
+  text-align:center;margin-top:.75rem;padding:.6rem 1rem;
+  border:1px solid rgba(255,215,0,.3);border-radius:6px;
+  background:rgba(255,215,0,.05);
+  font-family:'Orbitron',sans-serif;font-size:.7rem;color:var(--neon-gold);letter-spacing:1px;
+  min-height:2.4rem;display:flex;align-items:center;justify-content:center;
+}
+
+/* ─── LOCATION SCREEN ─── */
+#location-screen{
+  position:fixed;inset:0;z-index:9000;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse 120% 120% at 50% 0%,rgba(0,212,255,.12),transparent 70%),var(--dark-bg);
+  padding:1rem;
+}
+#location-screen.hidden{display:none;}
+
+.loc-card{
+  background:var(--card-bg);
+  border:1px solid var(--glass-border);
+  border-radius:16px;
+  padding:2.5rem;
+  width:100%;max-width:520px;
+  box-shadow:0 0 80px rgba(0,212,255,.15),0 40px 80px rgba(0,0,0,.8);
+  animation:modalSlide .4s cubic-bezier(.4,0,.2,1);
+  position:relative;overflow:hidden;
+}
+.loc-card::before{
+  content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:conic-gradient(from 0deg at 50% 50%,transparent 0deg,rgba(0,212,255,.04) 60deg,transparent 120deg);
+  animation:rotateBg 12s linear infinite;pointer-events:none;
+}
+@keyframes rotateBg{to{transform:rotate(360deg);}}
+@keyframes modalSlide{from{transform:translateY(40px) scale(.95);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+
+.loc-logo{text-align:center;margin-bottom:2rem;}
+.loc-logo-text{font-family:'Bebas Neue',sans-serif;font-size:3rem;letter-spacing:4px;background:linear-gradient(135deg,var(--neon-blue),var(--neon-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 15px rgba(0,212,255,.5));}
+.loc-logo-sub{font-family:'Orbitron',sans-serif;font-size:.55rem;letter-spacing:5px;color:var(--text-dim);display:block;margin-top:-4px;}
+.loc-title{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:3px;color:#fff;text-align:center;margin-bottom:.4rem;}
+.loc-subtitle{color:var(--text-dim);font-size:.9rem;text-align:center;margin-bottom:2rem;letter-spacing:.5px;}
+
+.loc-label{font-family:'Orbitron',sans-serif;font-size:.6rem;letter-spacing:3px;color:var(--neon-blue);text-transform:uppercase;margin-bottom:.5rem;display:block;}
+
+.loc-select{
+  width:100%;padding:.85rem 1.2rem;
+  background:rgba(0,212,255,.03);border:1px solid var(--glass-border);border-radius:8px;
+  color:var(--text-main);font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:600;
+  cursor:pointer;outline:none;transition:all .3s;margin-bottom:1.2rem;
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%2300d4ff' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 1rem center;padding-right:2.5rem;
+}
+.loc-select:focus{border-color:var(--neon-blue);box-shadow:0 0 20px rgba(0,212,255,.2);}
+.loc-select option{background:var(--card-bg);color:var(--text-main);}
+
+.loc-btn{
+  width:100%;padding:1.1rem;
+  background:linear-gradient(135deg,var(--neon-blue),var(--neon-purple));
+  border:none;border-radius:8px;color:#fff;
+  font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:3px;
+  cursor:pointer;transition:all .3s;
+  box-shadow:0 0 30px rgba(0,212,255,.3);
+  position:relative;overflow:hidden;
+}
+.loc-btn::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(45deg,transparent,rgba(255,255,255,.1),transparent);transform:translateX(-100%);transition:transform .6s;}
+.loc-btn:hover::before{transform:translateX(100%);}
+.loc-btn:hover{box-shadow:0 0 50px rgba(0,212,255,.5);transform:translateY(-2px);}
+.loc-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+
+/* ─── NAVBAR ─── */
+nav{position:sticky;top:0;z-index:1000;background:rgba(3,5,8,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--glass-border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:70px;box-shadow:0 0 30px rgba(0,212,255,.1);}
+.nav-logo{display:flex;align-items:center;gap:.5rem;text-decoration:none;}
+.logo-text{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:3px;background:linear-gradient(135deg,var(--neon-blue),var(--neon-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 8px rgba(0,212,255,.6));}
+.logo-sub{font-family:'Orbitron',sans-serif;font-size:.55rem;letter-spacing:4px;color:var(--text-dim);display:block;margin-top:-4px;}
+.nav-links{display:flex;gap:2rem;list-style:none;}
+.nav-links a{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:.85rem;letter-spacing:2px;color:var(--text-dim);text-decoration:none;text-transform:uppercase;transition:color .3s,text-shadow .3s;position:relative;}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:var(--neon-blue);box-shadow:0 0 8px var(--neon-blue);transition:width .3s;}
+.nav-links a:hover{color:var(--neon-blue);text-shadow:0 0 12px var(--neon-blue);}
+.nav-links a:hover::after{width:100%;}
+.nav-actions{display:flex;gap:.75rem;align-items:center;}
+.btn-nav{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.75rem;letter-spacing:2px;text-transform:uppercase;padding:.5rem 1.2rem;border-radius:4px;cursor:pointer;transition:all .3s;text-decoration:none;border:1px solid;}
+.btn-nav-outline{background:transparent;border-color:var(--glass-border);color:var(--text-dim);}
+.btn-nav-outline:hover{border-color:var(--neon-blue);color:var(--neon-blue);box-shadow:0 0 15px rgba(0,212,255,.2);}
+.btn-nav-solid{background:linear-gradient(135deg,var(--neon-blue),var(--neon-purple));border-color:transparent;color:#fff;box-shadow:0 0 20px rgba(0,212,255,.3);}
+.btn-nav-solid:hover{box-shadow:0 0 30px rgba(0,212,255,.5);transform:translateY(-1px);}
+.city-badge{display:flex;align-items:center;gap:.4rem;padding:.4rem 1rem;border:1px solid var(--glass-border);border-radius:4px;color:var(--text-dim);font-size:.75rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .3s;}
+.city-badge:hover{border-color:var(--neon-blue);color:var(--neon-blue);}
+.city-badge svg{width:14px;height:14px;}
+
+/* ─── HERO ─── */
+.hero{position:relative;z-index:2;padding:4rem 2rem 2.5rem;text-align:center;}
+.hero-eyebrow{font-family:'Orbitron',sans-serif;font-size:.7rem;letter-spacing:6px;color:var(--neon-blue);text-transform:uppercase;margin-bottom:1rem;animation:fadeUp .8s ease both;}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,10vw,7rem);line-height:.9;letter-spacing:2px;background:linear-gradient(135deg,#fff 0%,var(--neon-blue) 40%,var(--neon-purple) 80%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 40px rgba(0,212,255,.4));animation:fadeUp .8s .1s ease both;}
+.hero p{margin-top:1rem;color:var(--text-dim);font-size:1.1rem;letter-spacing:1px;animation:fadeUp .8s .2s ease both;}
+
+/* ─── FILTER BAR ─── */
+.filter-bar{position:relative;z-index:2;max-width:1400px;margin:0 auto 1.5rem;padding:0 2rem;display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;}
+.filter-chip{padding:.4rem 1rem;background:transparent;border:1px solid var(--card-border);border-radius:20px;color:var(--text-dim);font-family:'Rajdhani',sans-serif;font-weight:600;font-size:.8rem;letter-spacing:1px;cursor:pointer;transition:all .3s;white-space:nowrap;}
+.filter-chip:hover{border-color:var(--neon-blue);color:var(--neon-blue);}
+.filter-chip.active{border-color:var(--neon-blue);color:#fff;background:rgba(0,212,255,.12);box-shadow:0 0 12px rgba(0,212,255,.2);}
+
+/* ─── SECTION HEADER ─── */
+.section-header{display:flex;align-items:center;gap:1rem;margin-bottom:2rem;position:relative;z-index:2;}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:3px;color:#fff;}
+.section-line{flex:1;height:1px;background:linear-gradient(90deg,var(--neon-blue),transparent);box-shadow:0 0 8px var(--neon-blue);}
+.section-badge{font-family:'Orbitron',sans-serif;font-size:.6rem;padding:.3rem .8rem;border:1px solid var(--neon-blue);color:var(--neon-blue);letter-spacing:2px;border-radius:2px;box-shadow:0 0 10px rgba(0,212,255,.3);}
+
+/* ─── MAIN ─── */
+main{position:relative;z-index:2;max-width:1400px;margin:0 auto;padding:0 2rem 4rem;}
+
+/* ─── MOVIE GRID ─── */
+.movies-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.5rem;}
+.movie-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:8px;overflow:hidden;cursor:pointer;transition:all .4s cubic-bezier(.4,0,.2,1);position:relative;animation:fadeIn .6s ease both;}
+.movie-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,212,255,.05),rgba(191,0,255,.05));opacity:0;transition:opacity .3s;z-index:1;pointer-events:none;}
+.movie-card:hover{border-color:var(--neon-blue);transform:translateY(-8px) scale(1.02);box-shadow:0 0 40px rgba(0,212,255,.25),0 20px 40px rgba(0,0,0,.5);}
+.movie-card:hover::before{opacity:1;}
+.movie-card.selecting{animation:selectPulse .6s ease;border-color:var(--neon-pink);box-shadow:0 0 50px rgba(255,0,110,.4);}
+@keyframes selectPulse{0%{transform:scale(1);box-shadow:none;}30%{transform:scale(1.05);box-shadow:0 0 60px rgba(255,0,110,.6);}60%{transform:scale(.98);}100%{transform:scale(1.02);}}
+.movie-poster{width:100%;aspect-ratio:2/3;object-fit:cover;display:block;transition:transform .4s;}
+.movie-card:hover .movie-poster{transform:scale(1.05);}
+.movie-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(3,5,8,.97) 0%,rgba(3,5,8,.5) 45%,transparent 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:1rem;z-index:2;}
+
+/* AGE badge top-left */
+.age-badge{
+  position:absolute;top:.7rem;left:.7rem;z-index:4;
+  font-family:'Orbitron',sans-serif;font-size:.6rem;font-weight:700;
+  padding:.25rem .55rem;border-radius:4px;letter-spacing:1px;
+  border:1.5px solid;
+}
+.age-atp  {border-color:#00ff9f;color:#00ff9f;background:rgba(0,255,159,.1);}
+.age-7    {border-color:#7be3ff;color:#7be3ff;background:rgba(123,227,255,.1);}
+.age-13   {border-color:#ffd700;color:#ffd700;background:rgba(255,215,0,.1);}
+.age-16   {border-color:#ff9500;color:#ff9500;background:rgba(255,149,0,.1);}
+.age-18   {border-color:#ff006e;color:#ff006e;background:rgba(255,0,110,.1);}
+
+/* RATING badge top-right */
+.rating-badge{position:absolute;top:.7rem;right:.7rem;z-index:4;background:rgba(0,0,0,.8);border:1px solid var(--neon-gold);color:var(--neon-gold);font-family:'Orbitron',sans-serif;font-size:.55rem;padding:.2rem .5rem;border-radius:3px;}
+
+.movie-tags{display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.5rem;}
+.movie-tag{font-size:.6rem;padding:.15rem .45rem;border-radius:3px;border:1px solid rgba(0,212,255,.3);color:var(--neon-blue);font-family:'Orbitron',sans-serif;letter-spacing:.5px;background:rgba(0,212,255,.06);}
+.movie-title-text{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:1px;color:#fff;line-height:1.1;text-shadow:0 2px 8px rgba(0,0,0,.8);}
+.movie-genre-tag{font-size:.7rem;letter-spacing:1px;color:var(--neon-blue);margin-top:.2rem;text-transform:uppercase;}
+.movie-meta-row{display:flex;gap:.5rem;align-items:center;margin-top:.35rem;}
+.movie-duration{font-size:.7rem;color:var(--text-dim);}
+.movie-lang{font-size:.65rem;color:var(--text-dim);border:1px solid var(--card-border);padding:.1rem .4rem;border-radius:2px;}
+.movie-select-btn{margin-top:.75rem;padding:.5rem;background:linear-gradient(135deg,var(--neon-blue),var(--neon-purple));border:none;border-radius:4px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.8rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;opacity:0;transform:translateY(8px);transition:all .3s;z-index:3;position:relative;}
+.movie-card:hover .movie-select-btn{opacity:1;transform:translateY(0);}
+
+/* ─── MODAL BASE ─── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:5000;display:none;align-items:center;justify-content:center;padding:1rem;}
+.modal-overlay.active{display:flex;}
+.modal{background:var(--card-bg);border:1px solid var(--glass-border);border-radius:12px;width:100%;max-width:700px;max-height:90vh;overflow-y:auto;box-shadow:0 0 80px rgba(0,212,255,.15),0 40px 80px rgba(0,0,0,.8);animation:modalSlide .4s cubic-bezier(.4,0,.2,1);position:relative;}
+.modal-close{position:absolute;top:1rem;right:1rem;background:transparent;border:1px solid var(--glass-border);color:var(--text-dim);width:36px;height:36px;border-radius:50%;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s;z-index:10;}
+.modal-close:hover{border-color:var(--neon-pink);color:var(--neon-pink);}
+
+/* ─── TICKET MODAL ─── */
+.modal-header{padding:2rem 2rem 1rem;border-bottom:1px solid var(--card-border);display:flex;gap:1.5rem;align-items:flex-start;}
+.modal-poster{width:100px;height:150px;object-fit:cover;border-radius:6px;border:1px solid var(--glass-border);flex-shrink:0;}
+.modal-movie-info h2{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:2px;color:#fff;line-height:1;}
+.modal-movie-info .genre{color:var(--neon-blue);font-size:.8rem;letter-spacing:2px;text-transform:uppercase;margin-top:.3rem;}
+.modal-movie-info .desc{color:var(--text-dim);font-size:.9rem;margin-top:.75rem;line-height:1.5;}
+
+/* catalog info inside modal */
+.modal-catalog-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.75rem;}
+.catalog-pill{font-size:.65rem;padding:.2rem .6rem;border-radius:12px;border:1px solid;font-family:'Orbitron',sans-serif;letter-spacing:.5px;}
+.pill-age-atp {border-color:#00ff9f;color:#00ff9f;}
+.pill-age-7   {border-color:#7be3ff;color:#7be3ff;}
+.pill-age-13  {border-color:#ffd700;color:#ffd700;}
+.pill-age-16  {border-color:#ff9500;color:#ff9500;}
+.pill-age-18  {border-color:#ff006e;color:#ff006e;}
+.pill-genre   {border-color:rgba(0,212,255,.4);color:var(--neon-blue);}
+.pill-lang    {border-color:rgba(191,0,255,.4);color:#d580ff;}
+.pill-dur     {border-color:rgba(255,255,255,.15);color:var(--text-dim);}
+.modal-director{font-size:.8rem;color:var(--text-dim);margin-top:.5rem;}
+.modal-cast{font-size:.8rem;color:var(--text-dim);margin-top:.2rem;}
+.modal-tags-row{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.6rem;}
+.modal-tag{font-size:.65rem;padding:.15rem .5rem;border-radius:3px;border:1px solid rgba(0,212,255,.25);color:rgba(0,212,255,.8);background:rgba(0,212,255,.05);}
+
+.modal-body{padding:1.5rem 2rem;}
+.seat-types{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:1.5rem;}
+.seat-type-card{border:1px solid var(--card-border);border-radius:8px;padding:1rem;cursor:pointer;transition:all .3s;text-align:center;position:relative;overflow:hidden;}
+.seat-type-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .3s;}
+.seat-type-card.normal::before{background:linear-gradient(135deg,rgba(0,212,255,.1),transparent);}
+.seat-type-card.vip::before   {background:linear-gradient(135deg,rgba(255,215,0,.12),transparent);}
+.seat-type-card.ultra::before {background:linear-gradient(135deg,rgba(255,0,110,.12),transparent);}
+.seat-type-card.active::before{opacity:1;}
+.seat-type-card.active.normal{border-color:var(--neon-blue);box-shadow:0 0 20px rgba(0,212,255,.2);}
+.seat-type-card.active.vip   {border-color:var(--neon-gold);box-shadow:0 0 20px rgba(255,215,0,.2);}
+.seat-type-card.active.ultra {border-color:var(--neon-pink);box-shadow:0 0 20px rgba(255,0,110,.2);}
+.seat-type-card:hover{transform:translateY(-3px);}
+.seat-icon{font-size:1.8rem;margin-bottom:.5rem;}
+.seat-label{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:2px;}
+.seat-type-card.normal .seat-label{color:var(--neon-blue);}
+.seat-type-card.vip    .seat-label{color:var(--neon-gold);}
+.seat-type-card.ultra  .seat-label{color:var(--neon-pink);}
+.seat-price{font-family:'Orbitron',sans-serif;font-size:.75rem;color:var(--text-dim);margin-top:.25rem;}
+.showtimes-section{margin-bottom:1.5rem;}
+.showtimes-label{font-family:'Orbitron',sans-serif;font-size:.65rem;letter-spacing:3px;color:var(--neon-blue);text-transform:uppercase;margin-bottom:.75rem;}
+.showtime-tabs{display:flex;gap:.5rem;flex-wrap:wrap;}
+.showtime-btn{padding:.5rem 1.2rem;background:transparent;border:1px solid var(--card-border);border-radius:4px;color:var(--text-dim);font-family:'Rajdhani',sans-serif;font-weight:600;font-size:.85rem;cursor:pointer;transition:all .3s;position:relative;overflow:hidden;}
+.showtime-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--neon-blue),var(--neon-purple));opacity:0;transition:opacity .3s;}
+.showtime-btn span{position:relative;z-index:1;}
+.showtime-btn:hover{border-color:var(--neon-blue);color:#fff;}
+.showtime-btn:hover::before{opacity:.15;}
+.showtime-btn.active{border-color:var(--neon-blue);color:#fff;box-shadow:0 0 15px rgba(0,212,255,.3);}
+.showtime-btn.active::before{opacity:.25;}
+.showtime-hall{font-size:.65rem;color:var(--text-dim);margin-top:.2rem;display:block;}
+.payment-section{margin-bottom:1.5rem;}
+.payment-methods{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem;}
+.pay-btn{padding:1rem;background:transparent;border:1px solid var(--card-border);border-radius:8px;color:var(--text-dim);font-family:'Rajdhani',sans-serif;font-weight:600;font-size:.9rem;letter-spacing:1px;cursor:pointer;transition:all .3s;display:flex;flex-direction:column;align-items:center;gap:.4rem;}
+.pay-btn span.icon{font-size:1.5rem;}
+.pay-btn:hover{border-color:var(--neon-green);color:var(--neon-green);}
+.pay-btn.active{border-color:var(--neon-green);color:#fff;background:rgba(0,255,159,.08);box-shadow:0 0 20px rgba(0,255,159,.15);}
+.card-select-area{margin-top:1rem;}
+.select-styled{width:100%;padding:.75rem 1rem;background:var(--dark-bg);border:1px solid var(--glass-border);border-radius:6px;color:var(--text-main);font-family:'Rajdhani',sans-serif;font-size:.9rem;cursor:pointer;outline:none;transition:border-color .3s;margin-bottom:.75rem;}
+.select-styled:focus{border-color:var(--neon-blue);}
+.input-field{width:100%;padding:.75rem 1rem;background:var(--dark-bg);border:1px solid var(--glass-border);border-radius:6px;color:var(--text-main);font-family:'Rajdhani',sans-serif;font-size:.9rem;outline:none;transition:all .3s;margin-bottom:.75rem;}
+.input-field:focus{border-color:var(--neon-blue);box-shadow:0 0 15px rgba(0,212,255,.15);}
+.input-field::placeholder{color:var(--text-dim);}
+.input-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;}
+.label-small{font-family:'Orbitron',sans-serif;font-size:.6rem;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;margin-bottom:.4rem;display:block;}
+.btn-primary{width:100%;padding:1rem;background:linear-gradient(135deg,var(--neon-blue),var(--neon-purple));border:none;border-radius:6px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:3px;cursor:pointer;transition:all .3s;box-shadow:0 0 30px rgba(0,212,255,.3);position:relative;overflow:hidden;}
+.btn-primary::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(45deg,transparent,rgba(255,255,255,.1),transparent);transform:translateX(-100%);transition:transform .6s;}
+.btn-primary:hover::before{transform:translateX(100%);}
+.btn-primary:hover{box-shadow:0 0 50px rgba(0,212,255,.5);transform:translateY(-2px);}
+.btn-secondary{width:100%;padding:.75rem;background:transparent;border:1px solid var(--glass-border);border-radius:6px;color:var(--text-dim);font-family:'Rajdhani',sans-serif;font-weight:600;font-size:.85rem;letter-spacing:2px;cursor:pointer;transition:all .3s;margin-top:.5rem;text-transform:uppercase;}
+.btn-secondary:hover{border-color:var(--neon-blue);color:var(--neon-blue);}
+.new-card-form{border:1px solid var(--glass-border);border-radius:8px;padding:1rem;margin-top:.75rem;background:rgba(0,212,255,.03);display:none;}
+.new-card-form.visible{display:block;}
+
+/* ─── MY TICKETS ─── */
+.tickets-list{display:flex;flex-direction:column;gap:1rem;}
+.ticket-item{background:rgba(0,212,255,.05);border:1px solid var(--glass-border);border-radius:8px;padding:1rem 1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.75rem;transition:border-color .3s;}
+.ticket-item:hover{border-color:var(--neon-blue);}
+.ticket-code{font-family:'Orbitron',sans-serif;font-size:.7rem;color:var(--neon-blue);letter-spacing:2px;}
+.ticket-movie{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:1px;}
+.seat-badge{padding:.2rem .6rem;border-radius:3px;font-size:.65rem;font-family:'Orbitron',sans-serif;letter-spacing:1px;text-transform:uppercase;}
+.seat-badge.normal{border:1px solid var(--neon-blue);color:var(--neon-blue);}
+.seat-badge.vip   {border:1px solid var(--neon-gold);color:var(--neon-gold);}
+.seat-badge.ultra {border:1px solid var(--neon-pink);color:var(--neon-pink);}
+
+/* ─── TOAST ─── */
+.toast{position:fixed;bottom:2rem;right:2rem;background:var(--card-bg);border:1px solid var(--neon-green);border-radius:8px;padding:1.5rem;max-width:400px;box-shadow:0 0 40px rgba(0,255,159,.3);z-index:9999;transform:translateX(120%);transition:transform .4s cubic-bezier(.4,0,.2,1);font-size:.9rem;line-height:1.6;}
+.toast.show{transform:translateX(0);}
+.toast-title{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:2px;color:var(--neon-green);margin-bottom:.5rem;}
+
+/* ─── MULTICINES ─── */
+.multicine-tabs{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.5rem;}
+.mc-tab{padding:.55rem 1.1rem;background:transparent;border:1px solid var(--card-border);border-radius:6px;color:var(--text-dim);font-family:'Rajdhani',sans-serif;font-weight:600;font-size:.82rem;letter-spacing:1px;cursor:pointer;transition:all .3s;white-space:nowrap;}
+.mc-tab:hover{border-color:var(--neon-blue);color:var(--neon-blue);}
+.mc-tab.active{border-color:var(--neon-blue);color:#fff;background:rgba(0,212,255,.12);box-shadow:0 0 14px rgba(0,212,255,.2);}
+.mc-card{display:none;background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;overflow:hidden;animation:fadeIn .35s ease;}
+.mc-card.active{display:block;}
+.mc-hero{padding:2rem;display:flex;gap:1.5rem;align-items:center;border-bottom:1px solid var(--card-border);}
+.mc-icon{font-size:3.5rem;flex-shrink:0;}
+.mc-name{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:2px;color:#fff;line-height:1;}
+.mc-address{font-size:.85rem;color:var(--text-dim);margin-top:.4rem;letter-spacing:.5px;}
+.mc-badges{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.75rem;}
+.mc-badge{padding:.2rem .65rem;border-radius:3px;font-family:'Orbitron',sans-serif;font-size:.6rem;letter-spacing:1px;border:1px solid var(--glass-border);color:var(--text-dim);}
+.mc-badge.gold{border-color:var(--neon-gold);color:var(--neon-gold);}
+.mc-badge.pink{border-color:var(--neon-pink);color:var(--neon-pink);}
+.mc-badge.green{border-color:var(--neon-green);color:var(--neon-green);}
+.mc-badge.purple{border-color:var(--neon-purple);color:#d580ff;}
+.mc-details{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;padding:1.5rem 2rem;}
+.mc-detail-item{display:flex;gap:.75rem;align-items:flex-start;}
+.mc-detail-icon{font-size:1.4rem;flex-shrink:0;margin-top:.1rem;}
+.mc-detail-item strong{font-family:'Orbitron',sans-serif;font-size:.65rem;letter-spacing:1px;color:var(--neon-blue);display:block;margin-bottom:.3rem;}
+.mc-dim{font-size:.82rem;color:var(--text-dim);line-height:1.5;}
+.mc-cta{display:block;width:calc(100% - 4rem);margin:0 2rem 1.5rem;padding:.9rem;background:linear-gradient(135deg,var(--neon-blue),var(--neon-purple));border:none;border-radius:6px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:3px;cursor:pointer;transition:all .3s;box-shadow:0 0 20px rgba(0,212,255,.2);}
+.mc-cta:hover{box-shadow:0 0 40px rgba(0,212,255,.4);transform:translateY(-2px);}
+
+
+@keyframes fadeIn {from{opacity:0}to{opacity:1}}
+@keyframes fadeUp {from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--dark-bg);}
+::-webkit-scrollbar-thumb{background:var(--neon-blue);border-radius:2px;}
+@media(max-width:768px){.nav-links{display:none;}.seat-types{grid-template-columns:1fr;}.payment-methods{grid-template-columns:1fr;}.modal-header{flex-direction:column;}}
+
+/* ─── MULTICINES MODAL ─── */
+#multicines-modal { z-index: 5100; }
+.multicines-modal-inner {
+  background: var(--card-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 0 80px rgba(0,212,255,.18), 0 40px 80px rgba(0,0,0,.9);
+  animation: modalSlide .4s cubic-bezier(.4,0,.2,1);
+  position: relative;
+  padding: 2rem;
+}
+.multicines-modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1.5rem; padding-bottom: 1rem;
+  border-bottom: 1px solid var(--card-border);
+}
+.multicines-city-badge {
+  font-family: 'Orbitron', sans-serif; font-size: .65rem;
+  letter-spacing: 2px; padding: .3rem .8rem;
+  border: 1px solid var(--neon-blue); color: var(--neon-blue);
+  border-radius: 3px;
+}
+
+/* ─── PROMOCIONES SECTION ─── */
+#promociones-section { position:relative; z-index:2; max-width:1400px; margin:0 auto; padding:0 2rem 5rem; }
+.promos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; }
+.promo-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: all .3s;
+  cursor: default;
+}
+.promo-card:hover { transform: translateY(-4px); }
+.promo-card::before {
+  content: ''; position: absolute; top:0; left:0; right:0; height:3px;
+}
+.promo-card.action::before  { background: linear-gradient(90deg, #ff006e, #ff9500); }
+.promo-card.terror::before  { background: linear-gradient(90deg, #bf00ff, #ff006e); }
+.promo-card.anim::before    { background: linear-gradient(90deg, #00d4ff, #00ff9f); }
+.promo-card.family::before  { background: linear-gradient(90deg, #ffd700, #00d4ff); }
+.promo-card.scifi::before   { background: linear-gradient(90deg, #00d4ff, #bf00ff); }
+.promo-card.romance::before { background: linear-gradient(90deg, #ff006e, #ffd700); }
+.promo-card.marvel::before  { background: linear-gradient(90deg, #ff006e, #bf00ff); }
+.promo-card.special::before { background: linear-gradient(90deg, #ffd700, #ff9500); }
+.promo-card:hover { box-shadow: 0 0 30px rgba(0,212,255,.15); border-color: rgba(0,212,255,.3); }
+.promo-tag {
+  display: inline-block; font-family: 'Orbitron',sans-serif;
+  font-size: .55rem; letter-spacing: 2px; padding: .2rem .7rem;
+  border-radius: 2px; margin-bottom: .8rem;
+  border: 1px solid;
+}
+.promo-tag.action  { border-color: #ff9500; color: #ff9500; background: rgba(255,149,0,.08); }
+.promo-tag.terror  { border-color: #bf00ff; color: #bf00ff; background: rgba(191,0,255,.08); }
+.promo-tag.anim    { border-color: #00ff9f; color: #00ff9f; background: rgba(0,255,159,.08); }
+.promo-tag.family  { border-color: #ffd700; color: #ffd700; background: rgba(255,215,0,.08); }
+.promo-tag.scifi   { border-color: #00d4ff; color: #00d4ff; background: rgba(0,212,255,.08); }
+.promo-tag.romance { border-color: #ff006e; color: #ff006e; background: rgba(255,0,110,.08); }
+.promo-tag.marvel  { border-color: #ff006e; color: #ff006e; background: rgba(255,0,110,.08); }
+.promo-tag.special { border-color: #ffd700; color: #ffd700; background: rgba(255,215,0,.08); }
+.promo-emoji { font-size: 2.2rem; margin-bottom: .6rem; display: block; }
+.promo-title { font-family: 'Bebas Neue',sans-serif; font-size: 1.4rem; letter-spacing: 2px; color: #fff; line-height:1.1; margin-bottom: .5rem; }
+.promo-desc { font-size: .82rem; color: var(--text-dim); line-height: 1.55; margin-bottom: 1rem; }
+.promo-highlight {
+  background: rgba(0,212,255,.07); border: 1px solid rgba(0,212,255,.15);
+  border-radius: 6px; padding: .6rem .9rem;
+  font-family: 'Orbitron',sans-serif; font-size: .7rem;
+  color: var(--neon-blue); letter-spacing: 1px;
+}
+.promo-highlight.gold  { background: rgba(255,215,0,.07); border-color: rgba(255,215,0,.2); color: var(--neon-gold); }
+.promo-highlight.pink  { background: rgba(255,0,110,.07); border-color: rgba(255,0,110,.2); color: var(--neon-pink); }
+.promo-highlight.green { background: rgba(0,255,159,.07); border-color: rgba(0,255,159,.2); color: var(--neon-green); }
+.promo-highlight.purple{ background: rgba(191,0,255,.07); border-color: rgba(191,0,255,.2); color: #d580ff; }
+.promo-validity { font-size: .7rem; color: var(--text-dim); margin-top: .6rem; }
+
+/* ─── COMBOS ─── */
+.combo-section{margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--card-border);}
+.combo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.6rem;margin-top:.75rem;}
+.combo-item{background:rgba(0,212,255,.04);border:1px solid var(--glass-border);border-radius:8px;padding:.7rem .85rem;display:flex;align-items:center;gap:.5rem;transition:border-color .2s;}
+.combo-item:hover{border-color:rgba(0,212,255,.3);}
+.combo-name{flex:1;font-size:.8rem;font-weight:600;color:var(--text-main);line-height:1.3;}
+.combo-price{font-family:'Orbitron',sans-serif;font-size:.6rem;color:var(--neon-gold);white-space:nowrap;}
+.combo-controls{display:flex;align-items:center;gap:.4rem;margin-left:.25rem;}
+.combo-btn{width:24px;height:24px;border-radius:4px;border:1px solid rgba(0,212,255,.4);background:transparent;color:var(--neon-blue);font-size:1rem;cursor:pointer;line-height:1;transition:all .2s;display:flex;align-items:center;justify-content:center;}
+.combo-btn:hover{background:rgba(0,212,255,.15);border-color:var(--neon-blue);}
+.combo-qty{font-family:'Orbitron',sans-serif;font-size:.75rem;color:#fff;min-width:16px;text-align:center;}
+
+/* ─── QR MODAL ─── */
+.qr-info-card{background:rgba(0,255,159,.04);border:1px solid rgba(0,255,159,.2);border-radius:10px;padding:1rem 1.25rem;text-align:left;margin-top:.5rem;}
+.qr-info-row{display:flex;gap:.75rem;align-items:flex-start;padding:.35rem 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.85rem;}
+.qr-info-row:last-child{border-bottom:none;}
+.qr-info-row span{font-size:1.1rem;min-width:24px;}
+.qr-result-box{border-radius:10px;padding:1.2rem;margin-top:.75rem;}
+.qr-valid{background:rgba(0,255,159,.06);border:1px solid rgba(0,255,159,.3);}
+.qr-invalid{background:rgba(255,0,110,.06);border:1px solid rgba(255,0,110,.3);color:var(--neon-pink);text-align:center;padding:1.5rem;font-family:'Orbitron',sans-serif;font-size:.8rem;letter-spacing:1px;}
+.qr-result-title{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;color:var(--neon-green);margin-bottom:.75rem;text-align:center;}
+.qr-result-row{display:flex;justify-content:space-between;align-items:center;padding:.4rem 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:.85rem;}
+.qr-result-row:last-child{border-bottom:none;}
+.qr-result-row span{color:var(--text-dim);font-size:.8rem;}
+.qr-result-row strong{color:#fff;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════
+     LOGIN SCREEN
+════════════════════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-text">CINEMAX</div>
+      <span class="login-logo-sub">EXPERIENCE</span>
+    </div>
+    <h2 class="login-welcome">INICIAR SESIÓN</h2>
+    <p class="login-sub">Ingresa tus credenciales para continuar</p>
+
+    <label class="login-label">📧 Correo Electrónico</label>
+    <input class="login-input" id="login-email" type="email" placeholder="tucorreo@email.com" autocomplete="username">
+
+    <label class="login-label">🔒 Contraseña</label>
+    <input class="login-input" id="login-password" type="password" placeholder="••••••••••••" autocomplete="current-password"
+           onkeydown="if(event.key==='Enter') doLogin()">
+
+    <button class="login-btn" onclick="doLogin()">▸ INGRESAR</button>
+    <div class="login-error" id="login-error">❌ Correo o contraseña incorrectos</div>
+
+    <div class="login-divider">
+      <div class="login-divider-line"></div>
+      <span class="login-divider-text">CINEMAX © 2025</span>
+      <div class="login-divider-line"></div>
+    </div>
+    <p class="login-hint">Cuenta 1: <strong>jesusbarriosrodrig6@gmail.com</strong> / <strong>123456</strong><br>Cuenta 2: <strong>eilinsolano0123@gmail.com</strong> / <strong>987654321</strong><br>Cuenta 3: <strong>matiasserrato156@gmail.com</strong> / <strong>matias serrato 123</strong><br>Cuenta 4: <strong>123kevindavidgomezposada@gmail.com</strong> / <strong>123456789</strong></p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     LOCATION SELECTION SCREEN
+════════════════════════════════════════════════════════ -->
+<div id="location-screen" class="hidden">
+  <div class="loc-card">
+    <div class="loc-logo">
+      <div class="logo-text">CINEMAX</div>
+      <span class="loc-logo-sub">EXPERIENCE</span>
+    </div>
+    <h2 class="loc-title">SELECCIONA TU UBICACIÓN</h2>
+    <p class="loc-subtitle">Elige tu país y ciudad para ver la cartelera disponible</p>
+
+    <label class="loc-label">🌎 País</label>
+    <select class="loc-select" id="country-sel" onchange="updateCities()">
+      <option value="">-- Selecciona un país --</option>
+      {% for country in location_data.keys() %}
+      <option value="{{ country }}">{{ country }}</option>
+      {% endfor %}
+    </select>
+
+    <label class="loc-label">🏙️ Ciudad</label>
+    <select class="loc-select" id="city-sel" disabled>
+      <option value="">-- Primero selecciona un país --</option>
+    </select>
+
+    <button class="loc-btn" id="loc-confirm-btn" disabled onclick="confirmLocation()">
+      VER CARTELERA ▸
+    </button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     MAIN APP
+════════════════════════════════════════════════════════ -->
+<div id="main-app" style="display:none;">
+
+<!-- NAVBAR -->
+<nav>
+  <a href="/" class="nav-logo">
+    <div>
+      <span class="logo-text">CINEMAX</span>
+      <span class="logo-sub">EXPERIENCE</span>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#cartelera">Cartelera</a></li>
+    <li><a href="#" onclick="openMyTickets()">Mis Tiquetes</a></li>
+    <li><a href="#promociones-section">Promociones</a></li>
+    <li><a href="#" onclick="openMulticinesModal();return false;">Multicines</a></li>
+    <li><a href="#" onclick="openQRValidatorModal();return false;">🎟️ Código QR</a></li>
+  </ul>
+  <div class="nav-actions">
+    <div class="city-badge" onclick="showLocationScreen()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+      <span id="nav-city-label">CIUDAD</span>
+    </div>
+    <button class="btn-nav btn-nav-outline" onclick="openMyTickets()">Mis Tiquetes</button>
+    <button class="btn-nav btn-nav-solid" id="nav-login-btn" onclick="openLoginFromNav()">Iniciar Sesión</button>
+    <div class="user-menu-wrap" id="user-menu-wrap" style="display:none;">
+      <div class="nav-user-badge" id="nav-user-badge" onclick="toggleUserMenu()">
+        <span>👤</span><span id="nav-user-name">MATÍAS</span><span class="ucaret">▼</span>
+      </div>
+      <div class="user-dropdown" id="user-dropdown">
+        <div class="ud-header">
+          <div class="ud-email" id="ud-email-display">matiasserrato156@gmail.com</div>
+          <div class="ud-name" id="ud-name-display">MATÍAS SERRATO</div>
+          <div class="ud-role">👑 Cuenta Principal</div>
+        </div>
+        <div class="ud-item" onclick="openMyTickets();toggleUserMenu()"><span class="ud-icon">🎟️</span>Mis Tiquetes</div>
+        <div class="ud-divider"></div>
+        <span class="ud-accounts-label">CAMBIAR CUENTA</span>
+        <div id="ud-accounts-list">
+          <!-- Generated by JS -->
+        </div>
+        <div class="ud-divider"></div>
+        <div class="ud-item logout" onclick="doLogout()"><span class="ud-icon">🚪</span>Cerrar Sesión</div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">▸ EN CARTELERA AHORA · <span id="hero-city-label"></span></div>
+  <h1>VIVE EL CINE<br>COMO NUNCA</h1>
+  <p>Elige tu película, hora y asiento — en segundos.</p>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <button class="filter-chip active" onclick="filterMovies('all',this)">Todas</button>
+  <button class="filter-chip" onclick="filterMovies('Acción',this)">⚔️ Acción</button>
+  <button class="filter-chip" onclick="filterMovies('Romance',this)">💕 Romance</button>
+  <button class="filter-chip" onclick="filterMovies('Superhéroes',this)">🦸 Superhéroes</button>
+  <button class="filter-chip" onclick="filterMovies('Animación',this)">🎨 Animación</button>
+  <button class="filter-chip" onclick="filterMovies('Familiar',this)">👨‍👩‍👧 Familiar</button>
+  <button class="filter-chip" onclick="filterMovies('Ciencia Ficción',this)">🚀 Sci-Fi</button>
+  <button class="filter-chip" onclick="filterMovies('Drama',this)">🎭 Drama</button>
+  <button class="filter-chip" onclick="filterMovies('Terror',this)">👻 Terror</button>
+  <button class="filter-chip" onclick="filterMovies('ATP',this)">🟢 ATP</button>
+  <button class="filter-chip" onclick="filterMovies('+13',this)">🟡 +13</button>
+  <button class="filter-chip" onclick="filterMovies('+18',this)">🔴 +18</button>
+</div>
+
+<!-- MAIN -->
+<main>
+  <div id="cartelera" class="section-header">
+    <h2 class="section-title">CARTELERA</h2>
+    <div class="section-line"></div>
+    <span class="section-badge">HOY</span>
+  </div>
+
+  <div class="movies-grid" id="movies-grid">
+    {% for movie in movies %}
+    {% set age_class = 'age-atp' if movie.age_label == 'ATP' else ('age-7' if movie.age_label == '+7' else ('age-13' if movie.age_label == '+13' else ('age-16' if movie.age_label == '+16' else 'age-18'))) %}
+    <div class="movie-card"
+         data-id="{{ movie.id }}"
+         data-tags="{{ movie.tags }}"
+         data-age="{{ movie.age_label }}"
+         onclick="selectMovie({{ movie.id }}, this)">
+
+      <img src="{{ movie.poster_url }}"
+           alt="{{ movie.title }}"
+           class="movie-poster"
+           loading="lazy"
+           onerror="this.onerror=null;this.style.background='linear-gradient(135deg,#0d1117,#1a2332)'">
+
+      <!-- Age limit badge top-left -->
+      <span class="age-badge {{ age_class }}">{{ movie.age_label }}</span>
+      <!-- Rating badge top-right -->
+      <span class="rating-badge">{{ movie.rating }}</span>
+
+      <div class="movie-overlay">
+        <!-- genre tags -->
+        <div class="movie-tags">
+          {% if movie.tags %}
+            {% for tag in movie.tags.split(',')[:3] %}
+            <span class="movie-tag">{{ tag.strip() }}</span>
+            {% endfor %}
+          {% endif %}
+        </div>
+        <div class="movie-title-text">{{ movie.title | upper }}</div>
+        <div class="movie-genre-tag">{{ movie.genre | upper }}</div>
+        <div class="movie-meta-row">
+          <span class="movie-duration">⏱ {{ movie.duration }} min</span>
+          <span class="movie-lang">{{ movie.language.split('/')[0].strip() }}</span>
+        </div>
+        <button class="movie-select-btn">▸ COMPRAR TIQUETE</button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</main>
+
+<!-- MULTICINES SECTION (teaser - opens modal) -->
+<section id="multicines-section" style="position:relative;z-index:2;max-width:1400px;margin:0 auto;padding:0 2rem 5rem;">
+  <div class="section-header" style="margin-bottom:2rem;">
+    <h2 class="section-title">NUESTROS MULTICINES</h2>
+    <div class="section-line"></div>
+    <span class="section-badge">BARRANQUILLA</span>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;">
+    <div class="mc-preview-card" onclick="openMulticinesModal('metro')" style="background:var(--card-bg);border:1px solid rgba(0,212,255,.25);border-radius:10px;padding:1.4rem;cursor:pointer;transition:all .3s;display:flex;align-items:center;gap:1rem;" onmouseover="this.style.borderColor='var(--neon-blue)';this.style.transform='translateY(-4px)';this.style.boxShadow='0 0 25px rgba(0,212,255,.2)'" onmouseout="this.style.borderColor='rgba(0,212,255,.25)';this.style.transform='translateY(0)';this.style.boxShadow='none'">
+      <span style="font-size:2.2rem;flex-shrink:0">🏙️</span>
+      <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:2px;color:#fff;">Cinema Metro Centro</div>
+        <div style="font-size:.75rem;color:var(--text-dim);margin-top:.2rem;">Centro · IMAX · VIP · 8 salas</div>
+        <div style="font-size:.65rem;color:var(--neon-blue);margin-top:.4rem;font-family:'Orbitron',sans-serif;letter-spacing:1px;">▸ VER DETALLE</div>
+      </div>
+    </div>
+    <div class="mc-preview-card" onclick="openMulticinesModal('atlantico')" style="background:var(--card-bg);border:1px solid rgba(0,255,159,.2);border-radius:10px;padding:1.4rem;cursor:pointer;transition:all .3s;display:flex;align-items:center;gap:1rem;" onmouseover="this.style.borderColor='var(--neon-green)';this.style.transform='translateY(-4px)';this.style.boxShadow='0 0 25px rgba(0,255,159,.2)'" onmouseout="this.style.borderColor='rgba(0,255,159,.2)';this.style.transform='translateY(0)';this.style.boxShadow='none'">
+      <span style="font-size:2.2rem;flex-shrink:0">🌊</span>
+      <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:2px;color:#fff;">Nuestro Atlántico</div>
+        <div style="font-size:.75rem;color:var(--text-dim);margin-top:.2rem;">C.C. Nuestro Atlántico · 4DX · VIP · 6 salas</div>
+        <div style="font-size:.65rem;color:var(--neon-green);margin-top:.4rem;font-family:'Orbitron',sans-serif;letter-spacing:1px;">▸ VER DETALLE</div>
+      </div>
+    </div>
+    <div class="mc-preview-card" onclick="openMulticinesModal('prado')" style="background:var(--card-bg);border:1px solid rgba(255,215,0,.2);border-radius:10px;padding:1.4rem;cursor:pointer;transition:all .3s;display:flex;align-items:center;gap:1rem;" onmouseover="this.style.borderColor='var(--neon-gold)';this.style.transform='translateY(-4px)';this.style.boxShadow='0 0 25px rgba(255,215,0,.2)'" onmouseout="this.style.borderColor='rgba(255,215,0,.2)';this.style.transform='translateY(0)';this.style.boxShadow='none'">
+      <span style="font-size:2.2rem;flex-shrink:0">🏛️</span>
+      <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:2px;color:#fff;">Portal del Prado</div>
+        <div style="font-size:.75rem;color:var(--text-dim);margin-top:.2rem;">C.C. Portal del Prado · 4DX · VIP · 7 salas</div>
+        <div style="font-size:.65rem;color:var(--neon-gold);margin-top:.4rem;font-family:'Orbitron',sans-serif;letter-spacing:1px;">▸ VER DETALLE</div>
+      </div>
+    </div>
+    <div class="mc-preview-card" onclick="openMulticinesModal('unico')" style="background:var(--card-bg);border:1px solid rgba(191,0,255,.2);border-radius:10px;padding:1.4rem;cursor:pointer;transition:all .3s;display:flex;align-items:center;gap:1rem;" onmouseover="this.style.borderColor='var(--neon-purple)';this.style.transform='translateY(-4px)';this.style.boxShadow='0 0 25px rgba(191,0,255,.2)'" onmouseout="this.style.borderColor='rgba(191,0,255,.2)';this.style.transform='translateY(0)';this.style.boxShadow='none'">
+      <span style="font-size:2.2rem;flex-shrink:0">⭐</span>
+      <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:2px;color:#fff;">Único Barranquilla</div>
+        <div style="font-size:.75rem;color:var(--text-dim);margin-top:.2rem;">C.C. Único · ULTRA · VIP · 5 salas</div>
+        <div style="font-size:.65rem;color:#d580ff;margin-top:.4rem;font-family:'Orbitron',sans-serif;letter-spacing:1px;">▸ VER DETALLE</div>
+      </div>
+    </div>
+    <div class="mc-preview-card" onclick="openMulticinesModal('viva')" style="background:var(--card-bg);border:1px solid rgba(255,0,110,.2);border-radius:10px;padding:1.4rem;cursor:pointer;transition:all .3s;display:flex;align-items:center;gap:1rem;" onmouseover="this.style.borderColor='var(--neon-pink)';this.style.transform='translateY(-4px)';this.style.boxShadow='0 0 25px rgba(255,0,110,.2)'" onmouseout="this.style.borderColor='rgba(255,0,110,.2)';this.style.transform='translateY(0)';this.style.boxShadow='none'">
+      <span style="font-size:2.2rem;flex-shrink:0">✨</span>
+      <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:2px;color:#fff;">Viva Barranquilla</div>
+        <div style="font-size:.75rem;color:var(--text-dim);margin-top:.2rem;">C.C. Viva · 4DX · VIP · 6 salas</div>
+        <div style="font-size:.65rem;color:var(--neon-pink);margin-top:.4rem;font-family:'Orbitron',sans-serif;letter-spacing:1px;">▸ VER DETALLE</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROMOCIONES SECTION -->
+<section id="promociones-section" style="position:relative;z-index:2;max-width:1400px;margin:0 auto;padding:0 2rem 5rem;">
+  <div class="section-header" style="margin-bottom:2rem;">
+    <h2 class="section-title">PROMOCIONES</h2>
+    <div class="section-line"></div>
+    <span class="section-badge">VIGENTES</span>
+  </div>
+  <div class="promos-grid">
+
+    <!-- ACCIÓN -->
+    <div class="promo-card action">
+      <span class="promo-tag action">⚔️ ACCIÓN</span>
+      <span class="promo-emoji">🎬</span>
+      <div class="promo-title">MARTES DE ACCIÓN 2X1</div>
+      <div class="promo-desc">Todos los martes, compra dos tiquetes para cualquier película de Acción y paga solo uno. Aplica para sala Normal y 3D.</div>
+      <div class="promo-highlight">CÓDIGO: ACCION2X1 · Martes todo el día</div>
+      <div class="promo-validity">Válido hasta: 31 de diciembre 2025</div>
+    </div>
+
+    <!-- TERROR -->
+    <div class="promo-card terror">
+      <span class="promo-tag terror">👻 TERROR</span>
+      <span class="promo-emoji">🩸</span>
+      <div class="promo-title">NOCHE DE TERROR 30% OFF</div>
+      <div class="promo-desc">Funciones de terror a partir de las 9:00 PM con 30% de descuento en todos los formatos. ¡Tráete a tu compañía de miedo!</div>
+      <div class="promo-highlight purple">CÓDIGO: HORROR30 · Todos los viernes</div>
+      <div class="promo-validity">Válido hasta: 31 de diciembre 2025</div>
+    </div>
+
+    <!-- ANIMACIÓN / FAMILIAR -->
+    <div class="promo-card anim">
+      <span class="promo-tag anim">🎨 ANIMACIÓN</span>
+      <span class="promo-emoji">🍿</span>
+      <div class="promo-title">PLAN FAMILIA ANIMADA</div>
+      <div class="promo-desc">4 tiquetes por el precio de 3 en películas animadas y familiares. Incluye combo familiar: 2 crispetas grandes + 4 bebidas medianas.</div>
+      <div class="promo-highlight green">CÓDIGO: FAMILIA4X3 · Sábados y domingos</div>
+      <div class="promo-validity">Válido hasta: 31 de diciembre 2025</div>
+    </div>
+
+    <!-- SUPERHÉROES / MARVEL -->
+    <div class="promo-card marvel">
+      <span class="promo-tag marvel">🦸 SUPERHÉROES</span>
+      <span class="promo-emoji">⚡</span>
+      <div class="promo-title">COMBO HÉROE DEFINITIVO</div>
+      <div class="promo-desc">Tiquete VIP + crispetas grandes + bebida jumbo por solo $45.000 COP en cualquier película de superhéroes o Marvel. ¡El mejor combo del universo!</div>
+      <div class="promo-highlight pink">CÓDIGO: HEROE45 · Lunes a jueves</div>
+      <div class="promo-validity">Válido hasta: 31 de diciembre 2025</div>
+    </div>
+
+    <!-- CIENCIA FICCIÓN -->
+    <div class="promo-card scifi">
+      <span class="promo-tag scifi">🚀 SCI-FI</span>
+      <span class="promo-emoji">🛸</span>
+      <div class="promo-title">IMAX SCI-FI CON DESCUENTO</div>
+      <div class="promo-desc">25% de descuento en tiquetes IMAX para películas de Ciencia Ficción. Vive el futuro en la pantalla más grande de la ciudad.</div>
+      <div class="promo-highlight">CÓDIGO: IMAX25 · Miércoles y jueves</div>
+      <div class="promo-validity">Válido hasta: 31 de diciembre 2025</div>
+    </div>
+
+    <!-- ROMANCE / DRAMA -->
+    <div class="promo-card romance">
+      <span class="promo-tag romance">💕 ROMANCE</span>
+      <span class="promo-emoji">🌹</span>
+      <div class="promo-title">PLAN PAREJA ROMANTIC</div>
+      <div class="promo-desc">2 tiquetes VIP + 1 combo de dulces y chocolates especiales por $55.000 COP. Perfecto para una cita en el cine más épico de Barranquilla.</div>
+      <div class="promo-highlight pink">CÓDIGO: LOVE2VIP · Toda la semana</div>
+      <div class="promo-validity">Válido hasta: 31 de diciembre 2025</div>
+    </div>
+
+    <!-- FAMILIAR -->
+    <div class="promo-card family">
+      <span class="promo-tag family">👨‍👩‍👧 FAMILIAR</span>
+      <span class="promo-emoji">🎠</span>
+      <div class="promo-title">DOMINGOS EN FAMILIA</div>
+      <div class="promo-desc">Toda la familia al cine: niños menores de 10 años pagan mitad de precio en películas ATP y familiares todos los domingos. ¡Diversión garantizada!</div>
+      <div class="promo-highlight gold">CÓDIGO: SUNDAY50 · Solo domingos</div>
+      <div class="promo-validity">Válido hasta: 31 de diciembre 2025</div>
+    </div>
+
+    <!-- ESTRENO ESPECIAL -->
+    <div class="promo-card special">
+      <span class="promo-tag special">⭐ ESTRENO</span>
+      <span class="promo-emoji">🎉</span>
+      <div class="promo-title">AVANT-PREMIÈRE EXCLUSIVA</div>
+      <div class="promo-desc">Sé el primero en ver los grandes estrenos. Tiquete Ultra + acceso a zona VIP lounge + snack de bienvenida por $60.000 COP. Cupos muy limitados.</div>
+      <div class="promo-highlight gold">CÓDIGO: PREMIERE · Solo funciones de estreno</div>
+      <div class="promo-validity">Válido hasta: 31 de diciembre 2025</div>
+    </div>
+
+  </div>
+</section>
+</div><!-- /main-app -->
+
+<!-- ════════════════════════════════════════════════════════
+     MULTICINES MODAL
+════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="multicines-modal">
+  <div class="multicines-modal-inner">
+    <div class="multicines-modal-header">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:3px;color:#fff;line-height:1;">NUESTROS MULTICINES</div>
+          <div style="font-family:'Orbitron',sans-serif;font-size:.6rem;color:var(--text-dim);letter-spacing:2px;margin-top:.3rem;">BARRANQUILLA · 5 SEDES DISPONIBLES</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:.75rem;">
+        <span class="multicines-city-badge">BARRANQUILLA</span>
+        <button class="modal-close" style="position:static;" onclick="document.getElementById('multicines-modal').classList.remove('active')">✕</button>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="multicine-tabs" id="multicine-tabs-modal">
+      <button class="mc-tab active" onclick="showMulticineModal('metro',this)">🏙️ Cinema Metro Centro</button>
+      <button class="mc-tab" onclick="showMulticineModal('atlantico',this)">🌊 Nuestro Atlántico</button>
+      <button class="mc-tab" onclick="showMulticineModal('prado',this)">🏛️ Portal del Prado</button>
+      <button class="mc-tab" onclick="showMulticineModal('unico',this)">⭐ Único Barranquilla</button>
+      <button class="mc-tab" onclick="showMulticineModal('viva',this)">✨ Viva Barranquilla</button>
+    </div>
+
+    <!-- CARDS -->
+    <div id="mc-modal-metro" class="mc-card active">
+      <div class="mc-hero" style="background:linear-gradient(135deg,rgba(0,212,255,.15),rgba(191,0,255,.1));border-color:var(--neon-blue);">
+        <div class="mc-icon">🏙️</div>
+        <div class="mc-info">
+          <h3 class="mc-name">Cinema Metro Centro</h3>
+          <div class="mc-address">📍 Cra 46 # 45-15, Centro, Barranquilla</div>
+          <div class="mc-badges"><span class="mc-badge">2D</span><span class="mc-badge">3D</span><span class="mc-badge gold">VIP</span><span class="mc-badge pink">IMAX</span></div>
+        </div>
+      </div>
+      <div class="mc-details">
+        <div class="mc-detail-item"><span class="mc-detail-icon">🕐</span><div><strong>Horario</strong><br><span class="mc-dim">Lun–Jue: 11:00 AM – 11:00 PM · Vie–Dom: 10:00 AM – 1:00 AM</span></div></div>
+        <div class="mc-detail-item"><span class="mc-detail-icon">🎭</span><div><strong>Salas</strong><br><span class="mc-dim">8 salas · Capacidad 1.200 personas</span></div></div>
+        <div class="mc-detail-item"><span class="mc-detail-icon">🍿</span><div><strong>Servicios</strong><br><span class="mc-dim">Dulcería · Bar · Parqueadero · WiFi</span></div></div>
+        <div class="mc-detail-item"><span class="mc-detail-icon">📞</span><div><strong>Teléfono</strong><br><span class="mc-dim">(605) 385-1000</span></div></div>
+      </div>
+      <button class="mc-cta" onclick="document.getElementById('multicines-modal').classList.remove('active');scrollToCartelera()">▸ VER CARTELERA</button>
+    </div>
+
+    <div id="mc-modal-atlantico" class="mc-card">
+      <div class="mc-hero" style="background:linear-gradient(135deg,rgba(0,255,159,.12),rgba(0,212,255,.08));border-color:var(--neon-green);">
+        <div class="mc-icon">🌊</div>
+        <div class="mc-info">
+          <h3 class="mc-name">Multicine Nuestro Atlántico</h3>
+          <div class="mc-address">📍 Cra 54 # 68-196, C.C. Nuestro Atlántico</div>
+          <div class="mc-badges"><span class="mc-badge">2D</span><span class="mc-badge">3D</span><span class="mc-badge gold">VIP</span><span class="mc-badge green">4DX</span></div>
+        </div>
+      </div>
+      <div class="mc-details">
+        <div class="mc-detail-item"><span class="mc-detail-icon">🕐</span><div><strong>Horario</strong><br><span class="mc-dim">Lun–Jue: 11:00 AM – 11:00 PM · Vie–Dom: 10:00 AM – 12:30 AM</span></div></div>
+        <div class="mc-detail-item"><span class="mc-detail-icon">🎭</span><div><strong>Salas</strong><br><span class="mc-dim">6 salas · Capacidad 900 personas</span></div></div>
+        <div class="mc-detail-item"><span class="mc-detail-icon">🍿</span><div><strong>Servicios</strong><br><span class="mc-dim">Dulcería · Zona Kids · Parqueadero</span></div></div>
+        <div class="mc-detail-item"><span class="mc-detail-icon">📞</span><div><strong>Teléfono</strong><br><span class="mc-dim">(605) 385-2000</span></div></div>
+      </div>
+      <button class="mc-cta" onclick="document.getElementById('multicines-modal').classList.remove('active');scrollToCartelera()">▸ VER CARTELERA</button>
+    </div>
+
+    <div id="mc-modal-prado" class="mc-card">
+      <div class="mc-hero" style="background:linear-gradient(135deg,rgba(255,215,0,.12),rgba(255,149,0,.08));border-color:var(--neon-gold);">
+        <div class="mc-icon">🏛️</div>
+        <div class="mc-info">
+          <h3 class="mc-name">Multicine Portal del Prado</h3>
+          <div class="mc-address">📍 Calle 53 # 46-192, C.C. Portal del Prado</div>
+          <div class="mc-badges"><span class="mc-badge">2D</span><span class="mc-badge">3D</span><span class="mc-badge gold">VIP</span><span class="mc-badge pink">4DX</span></div>
+        </div>
+      </div>
+      <div class="mc-details">
+        <div class="mc-detail-item"><span class="mc-detail-icon">🕐</span><div><strong>Horario</strong><br><span class="mc-dim">Lun–Jue: 10:30 AM – 11:30 PM · Vie–Dom: 10:00 AM – 1:00 AM</span></div></div>
+        <div class="mc-detail-item"><span class="mc-detail-icon">🎭</span><div><strong>Salas</strong><br><span class="mc-dim">7 salas · Capacidad 1.050 personas</span></div></div>
+        <div class="mc-detail-item"><span class="mc-detail-icon">🍿</span><div><strong>Servicios</strong><br><span class="mc-dim">Dulcería · Bar VIP · Parqueadero · WiFi</span></div></div>
+        <div class="mc-detail-item"><span class="mc-detail-icon">📞</span><div><strong>Teléfono</strong><br><span class="mc-dim">(605) 385-3000</span></div></div>
+      </div>
+      <button class="mc-cta" onclick="document.getElementById('multicines-modal').classList.remove('active');scrollToCartelera()">▸ VER CARTELERA</button>
+    </div>
+
+    <div id="mc-modal-unico" class="mc-card">
+      <div class="mc-hero" style="background:linear-gradient(135deg,rgba(191,0,255,.15),rgba(255,0,110,.1));border-color:var(--neon-purple);">
+        <div class="mc-icon">⭐</div>
+        <div class="mc-info">
+          <h3 class="mc-name">Multicine Único Barranquilla</h3>
+          <div class="mc-address">📍 Cra 53 # 98-99, C.C. Único Barranquilla</div>
+          <div class="mc-badges"><span class="mc-badge">2D</span><span class="mc-badge">3D</span><span class="mc-badge gold">VIP</span><span class="mc-badge purple">ULTRA</span></div>
+        </div>
+      </div>
+      <div class="mc-details">
+        <div class="mc-detail-item"><span class="mc-detail-icon">🕐</span><div><strong>Horario</strong><br><span class="mc-dim">Lun–Jue: 11:00 AM – 11:00 PM · Vie–Dom: 10:00 AM – 12:00 AM</span></div></div>
+        <div class="mc-detail-item"><span class="mc-detail-icon">🎭</span><div><strong>Salas</strong><br><span class="mc-dim">5 salas · Capacidad 750 personas</span></div></div>
+        <div class="mc-detail-item"><span class="mc-detail-icon">🍿</span><div><strong>Servicios</strong><br><span class="mc-dim">Dulcería · Sala Ultra Premium · WiFi</span></div></div>
+        <div class="mc-detail-item"><span class="mc-detail-icon">📞</span><div><strong>Teléfono</strong><br><span class="mc-dim">(605) 385-4000</span></div></div>
+      </div>
+      <button class="mc-cta" onclick="document.getElementById('multicines-modal').classList.remove('active');scrollToCartelera()">▸ VER CARTELERA</button>
+    </div>
+
+    <div id="mc-modal-viva" class="mc-card">
+      <div class="mc-hero" style="background:linear-gradient(135deg,rgba(255,0,110,.12),rgba(255,215,0,.08));border-color:var(--neon-pink);">
+        <div class="mc-icon">✨</div>
+        <div class="mc-info">
+          <h3 class="mc-name">Multicine Viva Barranquilla</h3>
+          <div class="mc-address">📍 Cra 49B # 98-99, C.C. Viva Barranquilla</div>
+          <div class="mc-badges"><span class="mc-badge">2D</span><span class="mc-badge">3D</span><span class="mc-badge gold">VIP</span><span class="mc-badge green">4DX</span></div>
+        </div>
+      </div>
+      <div class="mc-details">
+        <div class="mc-detail-item"><span class="mc-detail-icon">🕐</span><div><strong>Horario</strong><br><span class="mc-dim">Lun–Jue: 11:00 AM – 11:30 PM · Vie–Dom: 10:00 AM – 1:00 AM</span></div></div>
+        <div class="mc-detail-item"><span class="mc-detail-icon">🎭</span><div><strong>Salas</strong><br><span class="mc-dim">6 salas · Capacidad 950 personas</span></div></div>
+        <div class="mc-detail-item"><span class="mc-detail-icon">🍿</span><div><strong>Servicios</strong><br><span class="mc-dim">Dulcería · Parqueadero · Zona Infantil</span></div></div>
+        <div class="mc-detail-item"><span class="mc-detail-icon">📞</span><div><strong>Teléfono</strong><br><span class="mc-dim">(605) 385-5000</span></div></div>
+      </div>
+      <button class="mc-cta" onclick="document.getElementById('multicines-modal').classList.remove('active');scrollToCartelera()">▸ VER CARTELERA</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     TICKET PURCHASE MODAL
+════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="ticket-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeTicketModal()">✕</button>
+    <div class="modal-header">
+      <img id="modal-poster" src="" alt="" class="modal-poster">
+      <div class="modal-movie-info">
+        <h2 id="modal-title"></h2>
+        <div class="genre" id="modal-genre"></div>
+        <!-- catalog pills -->
+        <div class="modal-catalog-row" id="modal-catalog-row"></div>
+        <div class="desc" id="modal-desc"></div>
+        <div class="modal-director" id="modal-director"></div>
+        <div class="modal-cast" id="modal-cast"></div>
+        <div class="modal-tags-row" id="modal-tags-row"></div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="showtimes-label" style="margin-bottom:.75rem;">TIPO DE ASIENTO</div>
+      <div class="seat-types">
+        <div class="seat-type-card normal active" onclick="selectSeat('normal',this)">
+          <div class="seat-icon">🎞️</div>
+          <div class="seat-label">NORMAL</div>
+          <div class="seat-price">$18.000 COP</div>
+        </div>
+        <div class="seat-type-card vip" onclick="selectSeat('vip',this)">
+          <div class="seat-icon">⭐</div>
+          <div class="seat-label">VIP</div>
+          <div class="seat-price">$28.000 COP</div>
+        </div>
+        <div class="seat-type-card ultra" onclick="selectSeat('ultra',this)">
+          <div class="seat-icon">👑</div>
+          <div class="seat-label">ULTRA</div>
+          <div class="seat-price">$38.000 COP</div>
+        </div>
+      </div>
+      <div class="showtimes-section">
+        <div class="showtimes-label">HORARIOS DISPONIBLES – HOY</div>
+        <div class="showtime-tabs" id="showtime-tabs">
+          <div style="color:var(--text-dim);font-size:.85rem;">Cargando horarios...</div>
+        </div>
+      </div>
+
+      <!-- SEAT MAP - 3 zonas separadas -->
+      <div class="seat-map-section">
+        <div class="seat-map-label">🎭 SELECCIONA TU ASIENTO</div>
+        <!-- Zone tabs -->
+        <div class="zone-tabs" id="zone-tabs">
+          <button class="zone-tab normal-tab active" onclick="switchZone('normal',this)">🎞️ NORMAL<br><small>$18.000 COP</small></button>
+          <button class="zone-tab vip-tab"    onclick="switchZone('vip',this)">⭐ VIP<br><small>$28.000 COP</small></button>
+          <button class="zone-tab ultra-tab"  onclick="switchZone('ultra',this)">👑 ULTRA<br><small>$38.000 COP</small></button>
+        </div>
+        <!-- Zone panels -->
+        <div class="zone-panel" id="zone-normal">
+          <div class="zone-panel-header normal-header">ZONA NORMAL — Filas A · B · C · D · E · F &nbsp;|&nbsp; 12 asientos por fila</div>
+          <div class="screen-bar"></div>
+          <div class="screen-label">◀ PANTALLA ▶</div>
+          <div class="seat-grid" id="seat-grid-normal"></div>
+        </div>
+        <div class="zone-panel hidden-zone" id="zone-vip">
+          <div class="zone-panel-header vip-header">ZONA VIP — Filas A · B · C · D · E · F &nbsp;|&nbsp; 12 asientos por fila</div>
+          <div class="screen-bar" style="background:linear-gradient(90deg,transparent,var(--neon-gold),var(--neon-gold),transparent);box-shadow:0 0 18px rgba(255,215,0,.5);"></div>
+          <div class="screen-label">◀ PANTALLA ▶</div>
+          <div class="seat-grid" id="seat-grid-vip"></div>
+        </div>
+        <div class="zone-panel hidden-zone" id="zone-ultra">
+          <div class="zone-panel-header ultra-header">ZONA ULTRA — Filas A · B · C · D · E · F &nbsp;|&nbsp; 12 asientos por fila</div>
+          <div class="screen-bar" style="background:linear-gradient(90deg,transparent,var(--neon-pink),var(--neon-purple),var(--neon-pink),transparent);box-shadow:0 0 18px rgba(255,0,110,.5);"></div>
+          <div class="screen-label">◀ PANTALLA ▶</div>
+          <div class="seat-grid" id="seat-grid-ultra"></div>
+        </div>
+        <!-- Shared legend -->
+        <div class="seat-legend">
+          <div class="seat-legend-item"><div class="seat-legend-dot legend-normal"></div>DISPONIBLE</div>
+          <div class="seat-legend-item"><div class="seat-legend-dot legend-occupied"></div>OCUPADO</div>
+          <div class="seat-legend-item"><div class="seat-legend-dot legend-selected"></div>TU ASIENTO</div>
+        </div>
+        <div class="selected-seat-info" id="selected-seat-info">Selecciona un asiento en el mapa</div>
+      </div>
+
+      <div class="payment-section">
+        <div class="showtimes-label">MÉTODO DE PAGO</div>
+        <div class="payment-methods" style="grid-template-columns:repeat(2,1fr);gap:.5rem;">
+          <button class="pay-btn active" id="pay-cash" onclick="selectPayment('cash')">
+            <span class="icon">💵</span><span>EFECTIVO</span>
+          </button>
+          <button class="pay-btn" id="pay-card" onclick="selectPayment('card')">
+            <span class="icon">💳</span><span>TARJETA</span>
+          </button>
+          <button class="pay-btn" id="pay-nequi" onclick="selectPayment('nequi')">
+            <span class="icon">📱</span><span>NEQUI</span>
+          </button>
+          <button class="pay-btn" id="pay-daviplata" onclick="selectPayment('daviplata')">
+            <span class="icon">🏦</span><span>DAVIPLATA</span>
+          </button>
+          <button class="pay-btn" id="pay-bancolombia" onclick="selectPayment('bancolombia')" style="grid-column:span 2;">
+            <span class="icon">🏛️</span><span>BANCOLOMBIA</span>
+          </button>
+        </div>
+        <div id="card-area" style="display:none;">
+          <label class="label-small">SELECCIONAR TARJETA</label>
+          <select class="select-styled" id="card-select" onchange="handleCardChange(this.value)">
+            <option value="">-- Mis tarjetas --</option>
+          </select>
+          <button class="btn-secondary" onclick="toggleNewCardForm()">+ Agregar nueva tarjeta</button>
+          <div class="new-card-form" id="new-card-form">
+            <div class="showtimes-label" style="margin-bottom:1rem;">NUEVA TARJETA</div>
+            <label class="label-small">Número de tarjeta</label>
+            <input class="input-field" id="nc-number" type="text" placeholder="0000 0000 0000 0000" maxlength="19" oninput="formatCard(this)">
+            <label class="label-small">Nombre del titular</label>
+            <input class="input-field" id="nc-name" type="text" placeholder="Tu nombre completo">
+            <div class="input-row">
+              <div>
+                <label class="label-small">Fecha de compra</label>
+                <input class="input-field" id="nc-purchase" type="date">
+              </div>
+              <div>
+                <label class="label-small">Fecha de vencimiento</label>
+                <input class="input-field" id="nc-expiry" type="date">
+              </div>
+            </div>
+            <button class="btn-primary" style="font-size:1rem;" onclick="saveCard()">GUARDAR TARJETA</button>
+          </div>
+        </div>
+        <div id="nequi-area" style="display:none;">
+          <label class="label-small">NÚMERO NEQUI</label>
+          <input class="input-field" id="nequi-number" type="tel" placeholder="3XX XXX XXXX" maxlength="12">
+        </div>
+        <div id="daviplata-area" style="display:none;">
+          <label class="label-small">NÚMERO DAVIPLATA</label>
+          <input class="input-field" id="daviplata-number" type="tel" placeholder="3XX XXX XXXX" maxlength="12">
+        </div>
+        <div id="bancolombia-area" style="display:none;">
+          <label class="label-small">NÚMERO BANCOLOMBIA</label>
+          <input class="input-field" id="bancolombia-number" type="tel" placeholder="3XX XXX XXXX" maxlength="12">
+        </div>
+      </div>
+
+      <!-- COMBOS DULCERÍA -->
+      <div class="combo-section">
+        <div class="showtimes-label">🍿 DULCERÍA & COMBOS <span style="font-family:'Rajdhani',sans-serif;font-size:.85rem;color:var(--text-dim);font-weight:400;letter-spacing:0">(Opcional)</span></div>
+        <div class="combo-grid" id="combo-grid">
+        </div>
+        <div id="combo-total-display" style="text-align:center;font-family:'Orbitron',sans-serif;font-size:.7rem;color:var(--neon-gold);margin-top:.5rem;"></div>
+      </div>
+      <button class="btn-primary" onclick="purchaseTicket()" style="margin-top:1.5rem;">🎟️ COMPRAR TIQUETE</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     QR CONFIRM MODAL
+════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="qr-confirm-modal">
+  <div class="modal" style="max-width:520px;">
+    <button class="modal-close" onclick="document.getElementById('qr-confirm-modal').classList.remove('active')">✕</button>
+    <div style="padding:2rem;text-align:center;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:3px;color:var(--neon-green);margin-bottom:.5rem;">✅ ¡COMPRA EXITOSA!</div>
+      <div style="font-family:'Orbitron',sans-serif;font-size:.6rem;color:var(--text-dim);letter-spacing:3px;margin-bottom:1.5rem;">GUARDA TU CÓDIGO QR</div>
+      <div id="qr-canvas" style="display:inline-block;padding:12px;background:white;border-radius:12px;margin-bottom:1.2rem;box-shadow:0 0 30px rgba(0,255,159,.3);"></div>
+      <div style="font-family:'Orbitron',sans-serif;font-size:.9rem;color:var(--neon-gold);letter-spacing:2px;margin-bottom:1.5rem;" id="qr-modal-code"></div>
+      <div class="qr-info-card">
+        <div class="qr-info-row"><span>🎬</span><div><strong id="qr-modal-movie"></strong></div></div>
+        <div class="qr-info-row"><span>📅</span><div id="qr-modal-date"></div></div>
+        <div class="qr-info-row"><span>🕐</span><div id="qr-modal-time"></div></div>
+        <div class="qr-info-row"><span>💺</span><div id="qr-modal-seats"></div></div>
+        <div class="qr-info-row"><span>🍿</span><div id="qr-modal-combo"></div></div>
+        <div class="qr-info-row"><span>💰</span><div><strong id="qr-modal-total"></strong></div></div>
+      </div>
+      <div style="margin-top:1rem;font-size:.78rem;color:var(--text-dim);">Presenta este código en la taquilla de Multicines</div>
+      <button class="btn-primary" onclick="document.getElementById('qr-confirm-modal').classList.remove('active')" style="margin-top:1.2rem;">ACEPTAR</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     QR VALIDATOR MODAL
+════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="qr-validator-modal">
+  <div class="modal" style="max-width:520px;">
+    <button class="modal-close" onclick="document.getElementById('qr-validator-modal').classList.remove('active')">✕</button>
+    <div style="padding:2rem;">
+      <div class="section-header" style="margin-bottom:1.5rem;">
+        <h2 class="section-title">🎟️ VALIDAR CÓDIGO QR</h2>
+        <div class="section-line"></div>
+      </div>
+      <p style="color:var(--text-dim);font-size:.9rem;margin-bottom:1.5rem;letter-spacing:.5px;">Ingresa el código QR que recibiste al finalizar tu compra para ver los detalles de tu entrada.</p>
+      <label class="label-small">CÓDIGO DE ENTRADA</label>
+      <div style="display:flex;gap:.75rem;margin-bottom:1rem;">
+        <input class="input-field" id="qr-validate-input" type="text" placeholder="CX-XXXXXXXX-XXXXXX" style="flex:1;font-family:'Orbitron',sans-serif;font-size:.8rem;letter-spacing:2px;" oninput="this.value=this.value.toUpperCase()">
+        <button class="btn-primary" onclick="validateQRCode()" style="width:auto;padding:.85rem 1.5rem;font-size:1rem;">VERIFICAR</button>
+      </div>
+      <div id="qr-validate-result"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     MY TICKETS MODAL
+════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="mytickets-modal">
+  <div class="modal" style="max-width:650px;">
+    <button class="modal-close" onclick="document.getElementById('mytickets-modal').classList.remove('active')">✕</button>
+    <div style="padding:2rem;">
+      <div class="section-header" style="margin-bottom:1.5rem;">
+        <h2 class="section-title">MIS TIQUETES</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="tickets-list" id="tickets-list">
+        <div style="color:var(--text-dim);text-align:center;padding:2rem;">Cargando...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-title">🎬 TIQUETE CONFIRMADO</div>
+  <div id="toast-msg"></div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════════ -->
+<script>
+const LOCATION_DATA = {{ location_data | tojson }};
+
+let selectedMovieId   = null;
+let selectedShowtimeId= null;
+let selectedSeatType  = 'normal';
+let selectedPayment   = 'cash';
+let selectedCardId    = null;
+let moviesData        = {};
+
+// ─── INIT ─────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+  const res  = await fetch('/api/movies');
+  const list = await res.json();
+  list.forEach(m => moviesData[m.id] = m);
+});
+
+// ─── LOCATION SCREEN ──────────────────────────────────────
+function updateCities() {
+  const country = document.getElementById('country-sel').value;
+  const cityEl  = document.getElementById('city-sel');
+  const btn     = document.getElementById('loc-confirm-btn');
+  cityEl.innerHTML = '<option value="">-- Selecciona una ciudad --</option>';
+  cityEl.disabled = !country;
+  btn.disabled = true;
+  if (country && LOCATION_DATA[country]) {
+    LOCATION_DATA[country].forEach(city => {
+      const opt = document.createElement('option');
+      opt.value = city; opt.textContent = city;
+      cityEl.appendChild(opt);
+    });
+    cityEl.addEventListener('change', () => {
+      btn.disabled = !cityEl.value;
+    }, {once:false});
+  }
+}
+
+// re-check on city change
+document.addEventListener('change', e => {
+  if (e.target.id === 'city-sel') {
+    document.getElementById('loc-confirm-btn').disabled = !e.target.value;
+  }
+});
+
+function confirmLocation() {
+  const country = document.getElementById('country-sel').value;
+  const city    = document.getElementById('city-sel').value;
+  if (!country || !city) return;
+  document.getElementById('nav-city-label').textContent = city.toUpperCase();
+  document.getElementById('hero-city-label').textContent = city.toUpperCase() + ' · ' + country.toUpperCase();
+  document.getElementById('location-screen').classList.add('hidden');
+  document.getElementById('main-app').style.display = 'block';
+  document.getElementById('main-app').style.animation = 'fadeIn .5s ease';
+}
+
+function showLocationScreen() {
+  document.getElementById('location-screen').classList.remove('hidden');
+  document.getElementById('main-app').style.display = 'none';
+}
+
+// ─── FILTER ───────────────────────────────────────────────
+function filterMovies(tag, btn) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.movie-card').forEach(card => {
+    if (tag === 'all') { card.style.display = ''; return; }
+    const tags = card.dataset.tags || '';
+    const age  = card.dataset.age  || '';
+    const show = tags.includes(tag) || age === tag;
+    card.style.display = show ? '' : 'none';
+  });
+}
+
+// ─── SELECT MOVIE ─────────────────────────────────────────
+async function selectMovie(id, el) {
+  el.classList.add('selecting');
+  setTimeout(() => el.classList.remove('selecting'), 600);
+  await new Promise(r => setTimeout(r, 200));
+
+  selectedMovieId    = id;
+  selectedShowtimeId = null;
+  const m = moviesData[id];
+  if (!m) return;
+
+  document.getElementById('modal-poster').src  = m.poster_url;
+  document.getElementById('modal-title').textContent  = m.title;
+  document.getElementById('modal-genre').textContent  = m.genre;
+  document.getElementById('modal-desc').textContent   = m.description;
+  document.getElementById('modal-director').textContent = m.director ? '🎬 Dir: ' + m.director : '';
+  document.getElementById('modal-cast').textContent   = m.cast_list ? '🎭 Cast: ' + m.cast_list : '';
+
+  // Catalog pills
+  const ageClass = {'ATP':'pill-age-atp','+7':'pill-age-7','+13':'pill-age-13','+16':'pill-age-16','+18':'pill-age-18'}[m.age_label] || 'pill-age-atp';
+  const row = document.getElementById('modal-catalog-row');
+  row.innerHTML = `
+    <span class="catalog-pill ${ageClass}">🔞 ${m.age_label}</span>
+    <span class="catalog-pill pill-dur">⏱ ${m.duration} min</span>
+    <span class="catalog-pill pill-lang">🌐 ${m.language}</span>
+    <span class="catalog-pill pill-genre">${m.rating}</span>
+  `;
+
+  // Tag pills
+  const tagsRow = document.getElementById('modal-tags-row');
+  tagsRow.innerHTML = '';
+  if (m.tags) {
+    m.tags.split(',').forEach(t => {
+      const span = document.createElement('span');
+      span.className = 'modal-tag'; span.textContent = t.trim();
+      tagsRow.appendChild(span);
+    });
+  }
+
+  // Reset
+  selectSeat('normal', document.querySelector('.seat-type-card.normal'));
+  selectPayment('cash');
+  // Reset combos
+  COMBOS.forEach(c => { selectedCombos[c.id] = 0; });
+  buildComboGrid();
+  updateComboTotal();
+
+  // Load showtimes
+  const stRes = await fetch('/api/showtimes/' + id);
+  const sts   = await stRes.json();
+  const tabs  = document.getElementById('showtime-tabs');
+  tabs.innerHTML = '';
+  if (!sts.length) {
+    tabs.innerHTML = '<div style="color:var(--text-dim)">No hay funciones hoy.</div>';
+  } else {
+    sts.forEach(st => {
+      const btn = document.createElement('button');
+      btn.className = 'showtime-btn';
+      btn.innerHTML = `<span>${st.show_time} <small style="opacity:.6">${st.format_type}</small></span><span class="showtime-hall">${st.hall}</span>`;
+      btn.onclick = () => {
+        document.querySelectorAll('.showtime-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedShowtimeId = st.id;
+        // Rebuild seat map for this specific showtime
+        buildAllSeatMaps();
+      };
+      tabs.appendChild(btn);
+    });
+  }
+
+  await loadCards();
+  buildAllSeatMaps();
+  // Reset to Normal zone tab
+  document.querySelectorAll('.zone-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('.zone-tab.normal-tab').classList.add('active');
+  ['normal','vip','ultra'].forEach(z => {
+    document.getElementById('zone-'+z).classList.toggle('hidden-zone', z !== 'normal');
+  });
+  document.getElementById('ticket-modal').classList.add('active');
+}
+
+function closeTicketModal() {
+  document.getElementById('ticket-modal').classList.remove('active');
+  selectedSeats.clear();
+}
+
+// ─── COMBOS ───────────────────────────────────────────────
+const COMBOS = [
+  { id:'crispeta_grande',  name:'🍿 Crispeta Grande',         price:12000 },
+  { id:'crispeta_mediana', name:'🍿 Crispeta Mediana',        price:9000  },
+  { id:'crispeta_pequena', name:'🍿 Crispeta Pequeña',        price:6000  },
+  { id:'gaseosa_grande',   name:'🥤 Gaseosa Grande',          price:8000  },
+  { id:'gaseosa_mediana',  name:'🥤 Gaseosa Mediana',         price:6000  },
+  { id:'combo_duo',        name:'🍿🥤 Combo Dúo (Crispeta+Gaseosa)', price:16000 },
+  { id:'combo_familiar',   name:'🍿🍿🥤 Combo Familiar (2 Crispetas+2 Gaseosas)', price:28000 },
+  { id:'chocolatina',      name:'🍫 Chocolatina',              price:3500  },
+  { id:'gomitas',          name:'🍬 Gomitas',                  price:4000  },
+  { id:'nachos',           name:'🧀 Nachos con Queso',         price:10000 },
+  { id:'hot_dog',          name:'🌭 Hot Dog',                  price:9000  },
+  { id:'agua',             name:'💧 Agua Botella',             price:4000  },
+  { id:'jugo',             name:'🧃 Jugo Hit',                 price:5000  },
+  { id:'helado',           name:'🍦 Helado Suave',             price:6000  },
+  { id:'perro_caliente',   name:'🌭 Perro Caliente Especial',  price:11000 },
+];
+const selectedCombos = {}; // id -> qty
+
+function getComboTotal() {
+  return COMBOS.reduce((s,c) => s + (selectedCombos[c.id]||0)*c.price, 0);
+}
+function getComboSummary() {
+  const parts = COMBOS.filter(c => selectedCombos[c.id]>0)
+    .map(c => `${c.name} x${selectedCombos[c.id]}`);
+  return parts.length ? parts.join(', ') : 'Sin combos';
+}
+function updateComboQty(id, delta) {
+  selectedCombos[id] = Math.max(0, (selectedCombos[id]||0) + delta);
+  document.getElementById('combo-qty-'+id).textContent = selectedCombos[id];
+  updateComboTotal();
+}
+function updateComboTotal() {
+  const total = getComboTotal();
+  document.getElementById('combo-total-display').textContent = total>0 ? `Total combos: $${total.toLocaleString('es-CO')} COP` : '';
+}
+
+// ─── PURCHASE HISTORY & QR ────────────────────────────────
+const purchaseHistory = [];
+
+function showQRConfirmation(data) {
+  // Build QR visual (simple SVG QR-like pattern based on code)
+  document.getElementById('qr-modal-code').textContent = data.qrCode;
+  document.getElementById('qr-modal-movie').textContent = data.movieTitle;
+  document.getElementById('qr-modal-date').textContent = data.date;
+  document.getElementById('qr-modal-time').textContent = data.showTime;
+  document.getElementById('qr-modal-seats').textContent = data.seats;
+  document.getElementById('qr-modal-combo').textContent = data.combo;
+  document.getElementById('qr-modal-total').textContent = '$' + data.total.toLocaleString('es-CO') + ' COP';
+  renderQRSVG(data.qrCode);
+  document.getElementById('qr-confirm-modal').classList.add('active');
+}
+
+function renderQRSVG(code) {
+  // Generate a deterministic grid pattern from the code string
+  const canvas = document.getElementById('qr-canvas');
+  const size = 21;
+  let hash = 0;
+  for (let i=0; i<code.length; i++) hash = ((hash<<5)-hash)+code.charCodeAt(i), hash|=0;
+  let bits = [];
+  let seed = Math.abs(hash);
+  for (let i=0; i<size*size; i++) {
+    seed = (seed * 1664525 + 1013904223) & 0xffffffff;
+    bits.push(((seed>>>16)&1)===1);
+  }
+  // Force corner finder patterns
+  [[0,0],[0,1],[1,0],[0,2],[2,0],[1,2],[2,1],[2,2],
+   [0,size-1],[0,size-2],[1,size-1],[0,size-3],[2,size-1],[1,size-3],[2,size-2],[2,size-3],
+   [size-1,0],[size-2,0],[size-1,1],[size-3,0],[size-1,2],[size-3,1],[size-2,2],[size-3,2]
+  ].forEach(([r,c]) => bits[r*size+c] = true);
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="180" height="180" style="image-rendering:pixelated">`;
+  svg += `<rect width="${size}" height="${size}" fill="white"/>`;
+  for (let r=0; r<size; r++) for (let c=0; c<size; c++) {
+    if (bits[r*size+c]) svg += `<rect x="${c}" y="${r}" width="1" height="1" fill="#0a0d14"/>`;
+  }
+  svg += '</svg>';
+  canvas.innerHTML = svg;
+}
+
+// ─── QR VALIDATOR (tab section) ───────────────────────────
+function validateQRCode() {
+  const code = document.getElementById('qr-validate-input').value.trim().toUpperCase();
+  const result = document.getElementById('qr-validate-result');
+  if (!code) { result.innerHTML = '<span style="color:var(--neon-pink)">Ingresa un código.</span>'; return; }
+  const found = purchaseHistory.find(p => p.qrCode === code);
+  if (!found) {
+    result.innerHTML = `<div class="qr-result-box qr-invalid">❌ Código no encontrado o inválido.</div>`;
+    return;
+  }
+  result.innerHTML = `
+    <div class="qr-result-box qr-valid">
+      <div class="qr-result-title">✅ ENTRADA VÁLIDA — MULTICINES</div>
+      <div class="qr-result-row"><span>🎬 Película:</span><strong>${found.movieTitle}</strong></div>
+      <div class="qr-result-row"><span>📅 Fecha:</span><strong>${found.date}</strong></div>
+      <div class="qr-result-row"><span>🕐 Hora:</span><strong>${found.showTime}</strong></div>
+      <div class="qr-result-row"><span>💺 Asientos:</span><strong>${found.seats}</strong></div>
+      <div class="qr-result-row"><span>🍿 Combos:</span><strong>${found.combo}</strong></div>
+      <div class="qr-result-row"><span>💰 Total:</span><strong>${'$' + found.total.toLocaleString('es-CO')} COP</strong></div>
+      <div class="qr-result-row"><span>🎟️ Código:</span><strong>${found.qrCode}</strong></div>
+      <div style="margin-top:1rem;padding:.75rem;background:rgba(0,255,159,.08);border:1px solid rgba(0,255,159,.3);border-radius:8px;text-align:center;font-family:'Orbitron',sans-serif;font-size:.7rem;color:var(--neon-green);letter-spacing:1px;">
+        🎉 ¡Disfruta tu función en Multicines!<br>Presenta este código en taquilla.
+      </div>
+    </div>`;
+}
+
+// ─── SEAT / PAYMENT ───────────────────────────────────────
+function selectSeat(type, el) {
+  selectedSeatType = type;
+  document.querySelectorAll('.seat-type-card').forEach(c => c.classList.remove('active'));
+  if (el) el.classList.add('active');
+}
+
+function selectPayment(method) {
+  selectedPayment = method;
+  ['cash','card','nequi','daviplata','bancolombia'].forEach(m => {
+    const btn = document.getElementById('pay-'+m);
+    if (btn) btn.classList.toggle('active', m===method);
+  });
+  document.getElementById('card-area').style.display       = method==='card'        ? 'block' : 'none';
+  document.getElementById('nequi-area').style.display      = method==='nequi'       ? 'block' : 'none';
+  document.getElementById('daviplata-area').style.display  = method==='daviplata'   ? 'block' : 'none';
+  document.getElementById('bancolombia-area').style.display= method==='bancolombia' ? 'block' : 'none';
+}
+
+// ─── CARDS ────────────────────────────────────────────────
+async function loadCards() {
+  const res   = await fetch('/api/cards');
+  const cards = await res.json();
+  const sel   = document.getElementById('card-select');
+  sel.innerHTML = '<option value="">-- Seleccionar tarjeta --</option>';
+  cards.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.id;
+    opt.textContent = c.card_number + ' · ' + c.holder_name + ' · ' + c.expiry_date;
+    sel.appendChild(opt);
+  });
+}
+
+function handleCardChange(val) { selectedCardId = val || null; }
+function toggleNewCardForm() {
+  document.getElementById('new-card-form').classList.toggle('visible');
+}
+function formatCard(input) {
+  let v = input.value.replace(/\D/g,'').substring(0,16);
+  input.value = v.replace(/(.{4})/g,'$1 ').trim();
+}
+async function saveCard() {
+  const number   = document.getElementById('nc-number').value.replace(/\s/g,'');
+  const name     = document.getElementById('nc-name').value;
+  const purchase = document.getElementById('nc-purchase').value;
+  const expiry   = document.getElementById('nc-expiry').value;
+  if (!number||!name||!purchase||!expiry){ alert('Completa todos los campos de la tarjeta.'); return; }
+  const res  = await fetch('/api/cards',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({card_number:number,holder_name:name,purchase_date:purchase,expiry_date:expiry})});
+  const data = await res.json();
+  if (data.success) {
+    showToastMsg('💳 Tarjeta guardada. Terminada en '+data.last4, false);
+    document.getElementById('new-card-form').classList.remove('visible');
+    await loadCards();
+  } else { alert('Error: '+data.error); }
+}
+
+// ─── PURCHASE ─────────────────────────────────────────────
+async function purchaseTicket() {
+  if (!selectedShowtimeId){ alert('Selecciona un horario.'); return; }
+  if (selectedSeats.size === 0) { alert('Selecciona al menos un asiento en el mapa.'); return; }
+  if (selectedPayment==='card' && !selectedCardId){ alert('Selecciona una tarjeta.'); return; }
+  if (selectedPayment==='nequi' && !document.getElementById('nequi-number').value.trim()){ alert('Ingresa tu número Nequi.'); return; }
+  if (selectedPayment==='daviplata' && !document.getElementById('daviplata-number').value.trim()){ alert('Ingresa tu número Daviplata.'); return; }
+  if (selectedPayment==='bancolombia' && !document.getElementById('bancolombia-number').value.trim()){ alert('Ingresa tu número Bancolombia.'); return; }
+
+  const seatsList = [...selectedSeats];
+  // Calculate total price
+  let totalPrice = 0;
+  seatsList.forEach(key => {
+    const zone = key.split(':')[0];
+    totalPrice += { normal:18000, vip:28000, ultra:38000 }[zone] || 18000;
+  });
+  // Add combo price
+  const comboPrice = getComboTotal();
+  totalPrice += comboPrice;
+
+  // Generate unique QR code
+  const qrCode = 'CX-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substr(2,6).toUpperCase();
+
+  // Mark seats as occupied for this movie+showtime combo
+  seatsList.forEach(key => {
+    const [zone, code] = key.split(':');
+    const occKey = selectedMovieId + '_' + selectedShowtimeId;
+    if (!occupiedByMovie[occKey]) occupiedByMovie[occKey] = { normal: new Set(), vip: new Set(), ultra: new Set() };
+    occupiedByMovie[occKey][zone].add(code);
+  });
+
+  // Store purchase for QR validation
+  const movie = moviesData[selectedMovieId];
+  const showBtn = document.querySelector('.showtime-btn.active');
+  const showTime = showBtn ? showBtn.textContent.trim() : '';
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('es-CO', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  const seatsDisplay = seatsList.map(k => { const [z,c]=k.split(':'); return `${c} (${ZONE_NAMES[z]})`; }).join(', ');
+  const comboDisplay = getComboSummary();
+
+  const purchaseData = {
+    qrCode, movieTitle: movie ? movie.title : '',
+    showTime, date: dateStr, seats: seatsDisplay,
+    combo: comboDisplay, total: totalPrice,
+    payment: selectedPayment
+  };
+  purchaseHistory.push(purchaseData);
+
+  // Re-build seat map to show newly occupied seats
+  buildAllSeatMaps();
+
+  // Show QR modal
+  showQRConfirmation(purchaseData);
+  closeTicketModal();
+}
+
+// ─── MULTICINES ───────────────────────────────────────────
+function openMulticinesModal(id) {
+  document.getElementById('multicines-modal').classList.add('active');
+  if (id) {
+    // Activate the right tab
+    document.querySelectorAll('#multicine-tabs-modal .mc-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('#multicines-modal .mc-card').forEach(c => c.classList.remove('active'));
+    const tabs = document.querySelectorAll('#multicine-tabs-modal .mc-tab');
+    const order = ['metro','atlantico','prado','unico','viva'];
+    const idx = order.indexOf(id);
+    if (idx >= 0 && tabs[idx]) tabs[idx].classList.add('active');
+    const card = document.getElementById('mc-modal-' + id);
+    if (card) card.classList.add('active');
+  }
+}
+
+function showMulticineModal(id, btn) {
+  document.querySelectorAll('#multicine-tabs-modal .mc-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('#multicines-modal .mc-card').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('mc-modal-' + id).classList.add('active');
+}
+
+// Close modal on overlay click
+document.getElementById('multicines-modal').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('active');
+});
+
+function showMulticine(id, btn) {
+  document.querySelectorAll('.mc-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.mc-card').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('mc-' + id).classList.add('active');
+}
+
+function scrollToCartelera() {
+  document.getElementById('cartelera').scrollIntoView({behavior:'smooth'});
+}
+
+function showToastMsg(msg, isTicket) {
+  document.querySelector('.toast-title').textContent = isTicket ? '🎬 TIQUETE CONFIRMADO' : '✅ ÉXITO';
+  document.getElementById('toast-msg').innerHTML = msg;
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 8000);
+}
+
+function openQRValidatorModal() {
+  document.getElementById('qr-validate-input').value = '';
+  document.getElementById('qr-validate-result').innerHTML = '';
+  document.getElementById('qr-validator-modal').classList.add('active');
+}
+
+// ─── ACCOUNTS ─────────────────────────────────────────────
+const ACCOUNTS = [
+  { email:'jesusbarriosrodrig6@gmail.com',        pass:'123456',           name:'Jesús Barrios',    role:'👑 Cuenta Principal', color:'#bf00ff', initials:'JB' },
+  { email:'eilinsolano0123@gmail.com',             pass:'987654321',        name:'Eilin Solano',     role:'Usuario',             color:'#00d4ff', initials:'ES' },
+  { email:'matiasserrato156@gmail.com',            pass:'matias serrato 123', name:'Matías Serrato', role:'Usuario',             color:'#ff006e', initials:'MS' },
+  { email:'123kevindavidgomezposada@gmail.com',    pass:'123456789',        name:'Kevin Gómez',      role:'Usuario',             color:'#00ff9f', initials:'KG' },
+];
+
+let currentAccountIdx = 0;
+
+function getAccountByEmail(email) {
+  return ACCOUNTS.find(a => a.email === email) || null;
+}
+
+// ─── LOGIN ────────────────────────────────────────────────
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-password').value;
+  const errEl = document.getElementById('login-error');
+  errEl.classList.remove('visible');
+
+  const account = ACCOUNTS.find(a => a.email === email && a.pass === pass);
+  if (account) {
+    currentAccountIdx = ACCOUNTS.indexOf(account);
+    applyAccount(account);
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('location-screen').classList.remove('hidden');
+    document.getElementById('nav-login-btn').style.display = 'none';
+    document.getElementById('user-menu-wrap').style.display = 'block';
+    buildAccountsList();
+  } else {
+    errEl.classList.add('visible');
+    document.getElementById('login-password').value = '';
+    document.getElementById('login-password').focus();
+  }
+}
+
+function applyAccount(account) {
+  document.getElementById('nav-user-name').textContent = account.name.split(' ')[0].toUpperCase();
+  document.getElementById('ud-email-display').textContent = account.email;
+  document.getElementById('ud-name-display').textContent = account.name.toUpperCase();
+  document.getElementById('ud-role-display') && (document.getElementById('ud-role-display').textContent = account.role);
+}
+
+function openLoginFromNav() {
+  document.getElementById('login-screen').classList.remove('hidden');
+}
+
+// ─── USER DROPDOWN ─────────────────────────────────────────
+function toggleUserMenu() {
+  const badge   = document.getElementById('nav-user-badge');
+  const dropdown= document.getElementById('user-dropdown');
+  const isOpen  = dropdown.classList.contains('open');
+  dropdown.classList.toggle('open', !isOpen);
+  badge.classList.toggle('open', !isOpen);
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', e => {
+  const wrap = document.getElementById('user-menu-wrap');
+  if (wrap && !wrap.contains(e.target)) {
+    document.getElementById('user-dropdown').classList.remove('open');
+    document.getElementById('nav-user-badge').classList.remove('open');
+  }
+});
+
+function buildAccountsList() {
+  const list = document.getElementById('ud-accounts-list');
+  list.innerHTML = ACCOUNTS.map((acc, i) => `
+    <div class="ud-account-item" onclick="switchAccount(${i})">
+      <div class="ud-account-avatar" style="background:${acc.color}22;border:1px solid ${acc.color}55;color:${acc.color}">
+        ${acc.initials}
+      </div>
+      <div class="ud-account-info">
+        <div class="ud-account-name">${acc.name}</div>
+        <div class="ud-account-email">${acc.email}</div>
+      </div>
+      <div class="ud-account-check" id="check-acc-${i}" style="${i===currentAccountIdx?'':'display:none'}">✓</div>
+    </div>
+  `).join('');
+}
+
+function switchAccount(idx) {
+  if (idx === currentAccountIdx) { toggleUserMenu(); return; }
+  currentAccountIdx = idx;
+  const account = ACCOUNTS[idx];
+  applyAccount(account);
+  buildAccountsList();
+  toggleUserMenu();
+  // Show a welcome toast
+  showToastMsg(`👤 Cambiado a <strong>${account.name}</strong><br><span style="font-size:.8rem;color:var(--text-dim)">${account.email}</span>`, false);
+}
+
+function doLogout() {
+  document.getElementById('user-dropdown').classList.remove('open');
+  document.getElementById('nav-user-badge').classList.remove('open');
+  document.getElementById('user-menu-wrap').style.display = 'none';
+  document.getElementById('nav-login-btn').style.display = '';
+  document.getElementById('main-app').style.display = 'none';
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('login-email').value = '';
+  document.getElementById('login-password').value = '';
+  document.getElementById('login-error').classList.remove('visible');
+}
+
+// ─── SEAT MAP (3 zones) ────────────────────────────────────
+// selectedSeats: Set of codes like "normal:A3", "vip:B5"
+let selectedSeats = new Set();
+// occupiedSeats: per-movie+showtime storage { "movieId_showtimeId": { zone: Set } }
+const occupiedByMovie = {};
+
+const ZONE_CONFIG = {
+  normal: { rows: ['A','B','C','D','E','F'], seatsPerRow: 12, color: 'normal' },
+  vip:    { rows: ['A','B','C','D','E','F'], seatsPerRow: 12, color: 'vip'    },
+  ultra:  { rows: ['A','B','C','D','E','F'], seatsPerRow: 12, color: 'ultra'  }
+};
+
+const ZONE_PRICES = { normal:'$18.000', vip:'$28.000', ultra:'$38.000' };
+const ZONE_NAMES  = { normal:'Normal', vip:'VIP ⭐', ultra:'Ultra 👑' };
+
+function buildAllSeatMaps() {
+  selectedSeats.clear();
+  document.getElementById('selected-seat-info').textContent = 'Selecciona uno o más asientos';
+  ['normal','vip','ultra'].forEach(zone => buildZoneMap(zone));
+}
+
+function getOccupiedKey() {
+  return selectedMovieId + '_' + (selectedShowtimeId || 'none');
+}
+
+function getOccupiedForMovie(movieId, zone) {
+  const key = movieId + '_' + (selectedShowtimeId || 'none');
+  if (!occupiedByMovie[key]) occupiedByMovie[key] = { normal: new Set(), vip: new Set(), ultra: new Set() };
+  return occupiedByMovie[key][zone];
+}
+
+function buildZoneMap(zone) {
+  const cfg  = ZONE_CONFIG[zone];
+  const grid = document.getElementById('seat-grid-' + zone);
+  if (!grid) return;
+  grid.innerHTML = '';
+  const occupied = getOccupiedForMovie(selectedMovieId, zone);
+
+  cfg.rows.forEach(row => {
+    const rowEl = document.createElement('div');
+    rowEl.className = 'seat-row';
+    const lbl = document.createElement('div');
+    lbl.className = 'row-label'; lbl.textContent = row;
+    rowEl.appendChild(lbl);
+
+    const half = Math.floor(cfg.seatsPerRow / 2);
+    for (let i = 1; i <= cfg.seatsPerRow; i++) {
+      if (i === half + 1) {
+        const aisle = document.createElement('div'); aisle.className = 'seat-aisle';
+        rowEl.appendChild(aisle);
+      }
+      const code  = row + i;
+      const isOcc = occupied.has(code);
+      const seatKey = zone + ':' + code;
+      const isSel = selectedSeats.has(seatKey);
+      const seat  = document.createElement('div');
+      seat.className = 'seat ' + (isOcc ? 'occupied' : (isSel ? 'selected-seat' : 'available-' + cfg.color));
+      seat.title = isOcc ? 'Ocupado' : `Fila ${row} · Asiento ${i} · ${ZONE_NAMES[zone]}`;
+      seat.dataset.code = code; seat.dataset.zone = zone;
+      seat.dataset.row  = row;  seat.dataset.num  = i;
+      if (!isOcc) seat.addEventListener('click', () => onSeatClick(seat, zone));
+      rowEl.appendChild(seat);
+    }
+    grid.appendChild(rowEl);
+  });
+}
+
+function switchZone(zone, btn) {
+  document.querySelectorAll('.zone-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  ['normal','vip','ultra'].forEach(z => {
+    document.getElementById('zone-' + z).classList.toggle('hidden-zone', z !== zone);
+  });
+  const typeCard = document.querySelector(`.seat-type-card.${zone}`);
+  if (typeCard) selectSeat(zone, typeCard);
+}
+
+function onSeatClick(seatEl, zone) {
+  const code = seatEl.dataset.code;
+  const key  = zone + ':' + code;
+  if (selectedSeats.has(key)) {
+    selectedSeats.delete(key);
+    seatEl.classList.remove('selected-seat');
+    seatEl.classList.add('available-' + zone);
+  } else {
+    selectedSeats.add(key);
+    seatEl.classList.add('selected-seat');
+    seatEl.classList.remove('available-' + zone);
+    // Auto-select seat type
+    const typeCard = document.querySelector(`.seat-type-card.${zone}`);
+    if (typeCard) selectSeat(zone, typeCard);
+  }
+  updateSelectedSeatInfo();
+}
+
+function updateSelectedSeatInfo() {
+  const el = document.getElementById('selected-seat-info');
+  if (selectedSeats.size === 0) {
+    el.textContent = 'Selecciona uno o más asientos';
+    return;
+  }
+  const parts = [...selectedSeats].map(key => {
+    const [zone, code] = key.split(':');
+    return `Fila ${code[0]}·${code.slice(1)} (${ZONE_NAMES[zone]}) ${ZONE_PRICES[zone]}`;
+  });
+  el.innerHTML = '✅ ' + parts.join(' &nbsp;|&nbsp; ');
+}
+
+function buildComboGrid() {
+  const grid = document.getElementById('combo-grid');
+  if (!grid) return;
+  grid.innerHTML = COMBOS.map(c => `
+    <div class="combo-item">
+      <div class="combo-name">${c.name}</div>
+      <div class="combo-price">$${c.price.toLocaleString('es-CO')}</div>
+      <div class="combo-controls">
+        <button class="combo-btn" onclick="updateComboQty('${c.id}',-1)">−</button>
+        <span class="combo-qty" id="combo-qty-${c.id}">0</span>
+        <button class="combo-btn" onclick="updateComboQty('${c.id}',1)">+</button>
+      </div>
+    </div>`).join('');
+}
+
+// ─── MY TICKETS ───────────────────────────────────────────
+function openMyTickets() {
+  document.getElementById('mytickets-modal').classList.add('active');
+  const list = document.getElementById('tickets-list');
+  if (!purchaseHistory.length) {
+    list.innerHTML = '<div style="color:var(--text-dim);text-align:center;padding:2rem;">No tienes tiquetes aún.</div>';
+    return;
+  }
+  list.innerHTML = [...purchaseHistory].reverse().map(t => `
+    <div class="ticket-item">
+      <div style="flex:1;">
+        <div class="ticket-code">${t.qrCode}</div>
+        <div class="ticket-movie">${t.movieTitle}</div>
+        <div style="font-size:.8rem;color:var(--text-dim);margin-top:.25rem;">🕐 ${t.showTime} &nbsp;·&nbsp; 💺 ${t.seats}</div>
+        <div style="font-size:.75rem;color:var(--text-dim);margin-top:.2rem;">📅 ${t.date}</div>
+        ${t.combo !== 'Sin combos' ? `<div style="font-size:.72rem;color:var(--neon-gold);margin-top:.2rem;">🍿 ${t.combo}</div>` : ''}
+      </div>
+      <div style="text-align:right;display:flex;flex-direction:column;gap:.5rem;align-items:flex-end;min-width:90px;">
+        <div style="font-family:'Orbitron',sans-serif;font-size:.75rem;color:var(--neon-gold);">$${t.total.toLocaleString('es-CO')} COP</div>
+        <div style="font-size:.7rem;color:var(--text-dim);">${
+          t.payment==='card'?'💳 Tarjeta':
+          t.payment==='nequi'?'📱 Nequi':
+          t.payment==='daviplata'?'🏦 Daviplata':
+          t.payment==='bancolombia'?'🏛️ Bancolombia':
+          '💵 Efectivo'}</div>
+      </div>
+    </div>`).join('');
+}
+</script>
+</body>
+</html>
