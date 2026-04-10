@@ -433,6 +433,13 @@ def my_tickets():
         'purchased_at':t.purchased_at.strftime('%d/%m/%Y %H:%M')}
         for t in Ticket.query.filter_by(user_session=uid).order_by(Ticket.purchased_at.desc()).all()])
 
+db = SQLAlchemy(app)
+
+# crear tablas y seed siempre (Render / Gunicorn)
+with app.app_context():
+    db.create_all()
+    seed_db()
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all(); seed_db()
