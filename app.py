@@ -4,7 +4,6 @@ from datetime import datetime
 import os, uuid
 
 app = Flask(__name__)
-db = SQLAlchemy(app)
 app.secret_key = os.environ.get('SECRET_KEY', 'cinemax-secret-2024')
 
 DB_URL = os.environ.get('DATABASE_URL', 'sqlite:///cinemax.db')
@@ -13,6 +12,7 @@ if DB_URL.startswith('postgres://'):
 app.config['SQLALCHEMY_DATABASE_URI'] = DB_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+db = SQLAlchemy(app)
 
 
 # ─── MODELS ────────────────────────────────────────────────────────────────────
