@@ -4,6 +4,7 @@ from datetime import datetime
 import os, uuid
 
 app = Flask(__name__)
+db = SQLAlchemy(app)
 app.secret_key = os.environ.get('SECRET_KEY', 'cinemax-secret-2024')
 
 DB_URL = os.environ.get('DATABASE_URL', 'sqlite:///cinemax.db')
@@ -12,7 +13,7 @@ if DB_URL.startswith('postgres://'):
 app.config['SQLALCHEMY_DATABASE_URI'] = DB_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db = SQLAlchemy(app)
+
 
 # ─── MODELS ────────────────────────────────────────────────────────────────────
 class Movie(db.Model):
@@ -433,7 +434,7 @@ def my_tickets():
         'purchased_at':t.purchased_at.strftime('%d/%m/%Y %H:%M')}
         for t in Ticket.query.filter_by(user_session=uid).order_by(Ticket.purchased_at.desc()).all()])
 
-db = SQLAlchemy(app)
+
 
 # crear tablas y seed siempre (Render / Gunicorn)
 with app.app_context():
