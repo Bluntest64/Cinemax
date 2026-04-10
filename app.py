@@ -6,6 +6,9 @@ import os, uuid
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'cinemax-secret-2024')
 
+app.config["SQLALCHEMY_DATABsssASE_URI"] = os.environ.get("DATABASE_URL")
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
 DB_URL = os.environ.get('DATABASE_URL', 'sqlite:///cinemax.db')
 if DB_URL.startswith('postgres://'):
     DB_URL = DB_URL.replace('postgres://', 'postgresql://', 1)
