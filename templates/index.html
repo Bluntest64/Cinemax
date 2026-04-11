@@ -621,7 +621,7 @@ main{position:relative;z-index:2;max-width:1400px;margin:0 auto;padding:0 2rem 4
   </div>
 </div>
 
-<div class="modal-overlay" id="register-modal">
+<div class="modal-overlay" id="register-modal" style="display:none;">
   <div class="modal" style="max-width:450px;">
     <button class="modal-close" onclick="closeRegisterModal()">✕</button>
 
@@ -1995,6 +1995,14 @@ function registerUser() {
   // ahora sí ir a ubicación
   document.getElementById("login-screen").style.display = "none";
   document.getElementById("location-screen").style.display = "flex";
+}
+
+function openRegisterModal() {
+  document.getElementById("register-modal").style.display = "flex";
+}
+
+function closeRegisterModal() {
+  document.getElementById("register-modal").style.display = "none";
 }
 </script>
 </body>
