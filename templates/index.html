@@ -1978,33 +1978,23 @@ function openMyTickets() {
 }
 
 // ─── REGISTER ───────────────────────────────────────────
-function openRegisterModal(){
-  document.getElementById('register-modal').style.display = "flex";
-}
+function registerUser() {
+  const name = document.getElementById("reg-name").value;
+  const email = document.getElementById("reg-email").value;
+  const pass = document.getElementById("reg-pass").value;
 
-function closeRegisterModal(){
-  document.getElementById('register-modal').style.display = "none";
-}
-
-async function registerUser(){
-  const name = document.getElementById('reg-name').value;
-  const email = document.getElementById('reg-email').value;
-  const pass = document.getElementById('reg-pass').value;
-
-  const res = await fetch('/api/register',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({name,email,password:pass})
-  });
-
-  const data = await res.json();
-
-  if(data.success){
-    alert("Cuenta creada");
-    closeRegisterModal();
-  }else{
-    alert(data.error);
+  if (!name || !email || !pass) {
+    alert("Completa todos los campos");
+    return;
   }
+
+  // guardar usuario (tu lógica aquí)
+
+  closeRegisterModal();
+
+  // ahora sí ir a ubicación
+  document.getElementById("login-screen").style.display = "none";
+  document.getElementById("location-screen").style.display = "flex";
 }
 </script>
 </body>
