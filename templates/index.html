@@ -743,7 +743,6 @@ main{position:relative;z-index:2;max-width:1400px;margin:0 auto;padding:0 2rem 4
   </a>
   <ul class="nav-links">
     <li><a href="#cartelera">Cartelera</a></li>
-    <li><a href="#" onclick="openMyTickets()">Mis Tiquetes</a></li>
     <li><a href="#promociones-section">Promociones</a></li>
     <li><a href="#" onclick="openMulticinesModal();return false;">Multicines</a></li>
     <li><a href="#" onclick="openQRValidatorModal();return false;">🎟️ Código QR</a></li>
@@ -762,8 +761,8 @@ main{position:relative;z-index:2;max-width:1400px;margin:0 auto;padding:0 2rem 4
       <div class="user-dropdown" id="user-dropdown">
         <div class="ud-header">
           <div class="ud-email" id="ud-email-display"></div>
-          <div class="ud-name" id="ud-name-display">MATÍAS SERRATO</div>
-          <div class="ud-role">👑 Cuenta Principal</div>
+          <div class="ud-name" id="ud-name-display"></div>
+          <div class="ud-role" id="ud-role-display">Usuario</div>
         </div>
         <div class="ud-item" onclick="openMyTickets();toggleUserMenu()"><span class="ud-icon">🎟️</span>Mis Tiquetes</div>
         <div class="ud-divider"></div>
@@ -1591,31 +1590,42 @@ function renderQRSVG(code) {
 }
 
 // ─── QR VALIDATOR (tab section) ───────────────────────────
-function validateQRCode() {
-  const code = document.getElementById('qr-validate-input').value.trim().toUpperCase();
+async function validateQRCode() {
+  const code   = document.getElementById('qr-validate-input').value.trim().toUpperCase();
   const result = document.getElementById('qr-validate-result');
-  if (!code) { result.innerHTML = '<span style="color:var(--neon-pink)">Ingresa un código.</span>'; return; }
-  // Buscar en el historial de TODAS las cuentas para validación QR
-  const allTickets = Object.values(purchaseHistoryByAccount).flat();
-  const found = allTickets.find(p => p.qrCode === code);
-  if (!found) {
-    result.innerHTML = `<div class="qr-result-box qr-invalid">❌ Código no encontrado o inválido.</div>`;
+  if (!code) {
+    result.innerHTML = '<span style="color:var(--neon-pink)">Ingresa un código.</span>';
     return;
   }
-  result.innerHTML = `
-    <div class="qr-result-box qr-valid">
-      <div class="qr-result-title">✅ ENTRADA VÁLIDA — MULTICINES</div>
-      <div class="qr-result-row"><span>🎬 Película:</span><strong>${found.movieTitle}</strong></div>
-      <div class="qr-result-row"><span>📅 Fecha:</span><strong>${found.date}</strong></div>
-      <div class="qr-result-row"><span>🕐 Hora:</span><strong>${found.showTime}</strong></div>
-      <div class="qr-result-row"><span>💺 Asientos:</span><strong>${found.seats}</strong></div>
-      <div class="qr-result-row"><span>🍿 Combos:</span><strong>${found.combo}</strong></div>
-      <div class="qr-result-row"><span>💰 Total:</span><strong>${'$' + found.total.toLocaleString('es-CO')} COP</strong></div>
-      <div class="qr-result-row"><span>🎟️ Código:</span><strong>${found.qrCode}</strong></div>
-      <div style="margin-top:1rem;padding:.75rem;background:rgba(0,255,159,.08);border:1px solid rgba(0,255,159,.3);border-radius:8px;text-align:center;font-family:'Orbitron',sans-serif;font-size:.7rem;color:var(--neon-green);letter-spacing:1px;">
-        🎉 ¡Disfruta tu función en Multicines!<br>Presenta este código en taquilla.
-      </div>
-    </div>`;
+  result.innerHTML = '<span style="color:var(--text-dim);font-family:Orbitron,sans-serif;font-size:.75rem;">Buscando...</span>';
+
+  try {
+    // Siempre consultar el servidor — es la fuente de verdad
+    const res  = await fetch('/api/tickets/validate?code=' + encodeURIComponent(code));
+    const data = await res.json();
+
+    if (!data.valid) {
+      result.innerHTML = `<div class="qr-result-box qr-invalid">❌ Código no encontrado o inválido.</div>`;
+      return;
+    }
+    const found = data;
+    result.innerHTML = `
+      <div class="qr-result-box qr-valid">
+        <div class="qr-result-title">✅ ENTRADA VÁLIDA — MULTICINES</div>
+        <div class="qr-result-row"><span>🎬 Película:</span><strong>${found.movieTitle}</strong></div>
+        <div class="qr-result-row"><span>📅 Fecha:</span><strong>${found.date || ''}</strong></div>
+        <div class="qr-result-row"><span>🕐 Hora:</span><strong>${found.showTime}</strong></div>
+        <div class="qr-result-row"><span>💺 Asientos:</span><strong>${found.seats}</strong></div>
+        <div class="qr-result-row"><span>🍿 Combos:</span><strong>${found.combo || 'Sin combos'}</strong></div>
+        <div class="qr-result-row"><span>💰 Total:</span><strong>$${(found.total||0).toLocaleString('es-CO')} COP</strong></div>
+        <div class="qr-result-row"><span>🎟️ Código:</span><strong>${found.qrCode}</strong></div>
+        <div style="margin-top:1rem;padding:.75rem;background:rgba(0,255,159,.08);border:1px solid rgba(0,255,159,.3);border-radius:8px;text-align:center;font-family:'Orbitron',sans-serif;font-size:.7rem;color:var(--neon-green);letter-spacing:1px;">
+          🎉 ¡Disfruta tu función en Multicines!<br>Presenta este código en taquilla.
+        </div>
+      </div>`;
+  } catch(e) {
+    result.innerHTML = `<div class="qr-result-box qr-invalid">❌ Error de conexión. Intenta de nuevo.</div>`;
+  }
 }
 
 // ─── SEAT / PAYMENT ───────────────────────────────────────
@@ -1721,30 +1731,38 @@ async function purchaseTicket() {
     combo: comboDisplay, total: totalPrice,
     payment: selectedPayment
   };
+  // Guardar en servidor PRIMERO (await) para usar el código oficial
+  try {
+    const resp = await fetch('/api/tickets', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        movieTitle: purchaseData.movieTitle,
+        showTime:   purchaseData.showTime,
+        seats:      purchaseData.seats,
+        total:      purchaseData.total,
+        payment:    purchaseData.payment,
+        combo:      purchaseData.combo,
+        date:       purchaseData.date
+      })
+    });
+    const d = await resp.json();
+    // Reemplazar el código local por el código real del servidor
+    if (d.success && d.ticket_code) {
+      purchaseData.qrCode = d.ticket_code;
+    }
+  } catch(e) {
+    // Si falla la red, el código local queda como fallback
+    console.warn('Error guardando tiquete en servidor:', e);
+  }
+
+  // Guardar en historial local (ya con el código del servidor)
   getPurchaseHistory().push(purchaseData);
 
-  // Guardar en servidor (persistencia real)
-  fetch('/api/tickets', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({
-      movieTitle: purchaseData.movieTitle,
-      showTime:   purchaseData.showTime,
-      seats:      purchaseData.seats,
-      total:      purchaseData.total,
-      payment:    purchaseData.payment,
-      combo:      purchaseData.combo,
-      date:       purchaseData.date
-    })
-  }).then(r => r.json()).then(d => {
-    // Actualizar código QR con el del servidor si viene
-    if (d.success && d.ticket_code) purchaseData.qrCode = d.ticket_code;
-  }).catch(() => {});
-
-  // Re-build seat map to show newly occupied seats
+  // Redibujar mapa de asientos con los nuevos ocupados
   buildAllSeatMaps();
 
-  // Show QR modal
+  // Mostrar modal QR con el código correcto
   showQRConfirmation(purchaseData);
   closeTicketModal();
 }

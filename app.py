@@ -2,6 +2,19 @@ from flask import Flask, render_template, request, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+
+# Nombres de días y meses en español para formatear fechas
+_DIAS_ES   = ['lunes','martes','miércoles','jueves','viernes','sábado','domingo']
+_MESES_ES  = ['enero','febrero','marzo','abril','mayo','junio',
+               'julio','agosto','septiembre','octubre','noviembre','diciembre']
+
+def fecha_es(dt):
+    """Devuelve la fecha en español: 'sábado, 11 de abril de 2026'"""
+    if not dt:
+        return ''
+    dia_semana = _DIAS_ES[dt.weekday()]
+    mes        = _MESES_ES[dt.month - 1]
+    return f"{dia_semana}, {dt.day} de {mes} de {dt.year}"
 import os, uuid, random
 
 app = Flask(__name__)
@@ -579,7 +592,7 @@ def get_tickets():
         'total':       t.total,
         'payment':     t.payment_method,
         'combo':       t.combo_detail or 'Sin combos',
-        'date':        t.purchased_at.strftime('%A, %d de %B de %Y') if t.purchased_at else '',
+        'date':        fecha_es(t.purchased_at),
         'status':      t.status
     } for t in tickets])
 
