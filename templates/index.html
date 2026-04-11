@@ -621,6 +621,29 @@ main{position:relative;z-index:2;max-width:1400px;margin:0 auto;padding:0 2rem 4
   </div>
 </div>
 
+<div class="modal-overlay" id="register-modal">
+  <div class="modal" style="max-width:450px;">
+    <button class="modal-close" onclick="closeRegisterModal()">✕</button>
+
+    <div style="padding:2rem;">
+      <h2 style="margin-bottom:1rem;">Crear cuenta</h2>
+
+      <label>Nombre</label>
+      <input id="reg-name">
+
+      <label>Correo</label>
+      <input id="reg-email" type="email">
+
+      <label>Contraseña</label>
+      <input id="reg-pass" type="password">
+
+      <button onclick="registerUser()">
+        Registrarse
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ════════════════════════════════════════════════════════
      LOCATION SELECTION SCREEN
 ════════════════════════════════════════════════════════ -->
@@ -1263,28 +1286,6 @@ main{position:relative;z-index:2;max-width:1400px;margin:0 auto;padding:0 2rem 4
   <div id="toast-msg"></div>
 </div>
 
-<div class="modal-overlay" id="register-modal">
-  <div class="modal" style="max-width:450px;">
-    <button class="modal-close" onclick="closeRegisterModal()">✕</button>
-
-    <div style="padding:2rem;">
-      <h2 style="margin-bottom:1rem;">Crear cuenta</h2>
-
-      <label>Nombre</label>
-      <input id="reg-name">
-
-      <label>Correo</label>
-      <input id="reg-email" type="email">
-
-      <label>Contraseña</label>
-      <input id="reg-pass" type="password">
-
-      <button onclick="registerUser()">
-        Registrarse
-      </button>
-    </div>
-  </div>
-</div>
 <!-- ════════════════════════════════════════════════════════
      JAVASCRIPT
 ════════════════════════════════════════════════════════ -->
@@ -1978,7 +1979,7 @@ function openMyTickets() {
 
 // ─── REGISTER ───────────────────────────────────────────
 function openRegisterModal(){
-  document.getElementById('register-modal').style.display = "block";
+  document.getElementById('register-modal').style.display = "flex";
 }
 
 function closeRegisterModal(){
