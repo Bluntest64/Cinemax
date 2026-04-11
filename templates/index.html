@@ -595,20 +595,21 @@ main{position:relative;z-index:2;max-width:1400px;margin:0 auto;padding:0 2rem 4
     </div>
     <h2 class="login-welcome">INICIAR SESIÓN</h2>
     <p class="login-sub">Ingresa tus credenciales para continuar</p>
-
+    
     <label class="login-label">📧 Correo Electrónico</label>
     <input class="login-input" id="login-email" type="email" placeholder="tucorreo@email.com" autocomplete="username">
-
+    
     <label class="login-label">🔒 Contraseña</label>
     <input class="login-input" id="login-password" type="password" placeholder="••••••••••••" autocomplete="current-password"
-           onkeydown="if(event.key==='Enter') doLogin()">
-
+    onkeydown="if(event.key==='Enter') doLogin()">
+    
     <button class="login-btn" onclick="doLogin()">▸ INGRESAR</button>
+    
     <!-- BOTON REGISTRARSE -->
-  <div style="text-align:center;margin-top:10px;">
+    <div style="text-align:center;margin-top:10px;">
     <button class="login-btn" onclick="openRegisterModal()">▸ CREAR CUENTA
     </button>
-  </div>
+    </div>
 
     <div class="login-error" id="login-error">❌ Correo o contraseña incorrectos</div>
 
