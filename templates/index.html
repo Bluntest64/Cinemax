@@ -622,26 +622,78 @@ main{position:relative;z-index:2;max-width:1400px;margin:0 auto;padding:0 2rem 4
   </div>
 </div>
 
-<div class="modal-overlay" id="register-modal" style="display:none;">
-  <div class="modal" style="max-width:450px;">
-    <button class="modal-close" onclick="closeRegisterModal()">✕</button>
+<!-- ════════════════════════════════════════════════════════
+     REGISTER SCREEN  (mismo sistema visual que #login-screen)
+════════════════════════════════════════════════════════ -->
+<div id="register-screen" style="
+  position:fixed;inset:0;z-index:9600;
+  display:none;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse 120% 120% at 50% 0%,rgba(0,212,255,.12),transparent 70%),var(--dark-bg);
+  padding:1rem;">
+  <div class="login-card" style="max-width:460px;">
 
-    <div style="padding:2rem;">
-      <h2 style="margin-bottom:1rem;">Crear cuenta</h2>
+    <!-- Botón cerrar -->
+    <button onclick="closeRegisterModal()" style="
+      position:absolute;top:1rem;right:1rem;
+      background:transparent;border:1px solid var(--glass-border);
+      color:var(--text-dim);width:34px;height:34px;border-radius:50%;
+      font-size:1.1rem;cursor:pointer;display:flex;align-items:center;
+      justify-content:center;transition:all .3s;z-index:10;">✕</button>
 
-      <label>Nombre</label>
-      <input id="reg-name">
+    <!-- Logo -->
+    <div class="login-logo">
+      <div class="login-logo-text">CINEMAX</div>
+      <span class="login-logo-sub">EXPERIENCE</span>
+    </div>
 
-      <label>Correo</label>
-      <input id="reg-email" type="email">
+    <h2 class="login-welcome">CREAR CUENTA</h2>
+    <p class="login-sub">Únete y vive la experiencia CINEMAX</p>
 
-      <label>Contraseña</label>
-      <input id="reg-pass" type="password">
+    <!-- Nombre -->
+    <label class="login-label">👤 Nombre Completo</label>
+    <input class="login-input" id="reg-name" type="text"
+           placeholder="Tu nombre y apellido"
+           autocomplete="name">
 
-      <button onclick="registerUser()">
-        Registrarse
+    <!-- Correo -->
+    <label class="login-label">📧 Correo Electrónico</label>
+    <input class="login-input" id="reg-email" type="email"
+           placeholder="tucorreo@email.com"
+           autocomplete="email">
+
+    <!-- Contraseña -->
+    <label class="login-label">🔒 Contraseña</label>
+    <input class="login-input" id="reg-pass" type="password"
+           placeholder="Mínimo 6 caracteres"
+           autocomplete="new-password">
+
+    <!-- Confirmar contraseña -->
+    <label class="login-label">🔒 Confirmar Contraseña</label>
+    <input class="login-input" id="reg-pass2" type="password"
+           placeholder="Repite tu contraseña"
+           autocomplete="new-password"
+           onkeydown="if(event.key==='Enter') registerUser()">
+
+    <!-- Mensaje de error/éxito -->
+    <div class="login-error" id="reg-error"></div>
+
+    <!-- Botón registrarse -->
+    <button class="login-btn" onclick="registerUser()">▸ REGISTRARSE</button>
+
+    <!-- Volver al login -->
+    <div class="login-divider">
+      <div class="login-divider-line"></div>
+      <span class="login-divider-text">¿YA TIENES CUENTA?</span>
+      <div class="login-divider-line"></div>
+    </div>
+    <div style="text-align:center;">
+      <button class="login-btn" onclick="closeRegisterModal()"
+        style="background:transparent;border:1px solid var(--glass-border);
+               box-shadow:none;color:var(--text-dim);font-size:1rem;padding:.8rem;">
+        ← VOLVER AL LOGIN
       </button>
     </div>
+
   </div>
 </div>
 
@@ -1338,6 +1390,8 @@ function confirmLocation() {
   const country = document.getElementById('country-sel').value;
   const city    = document.getElementById('city-sel').value;
   if (!country || !city) return;
+  // Persistir ciudad en localStorage para restaurar tras recarga
+  try { localStorage.setItem('cx_city', city); localStorage.setItem('cx_country', country); } catch(e){}
   document.getElementById('nav-city-label').textContent = city.toUpperCase();
   document.getElementById('hero-city-label').textContent = city.toUpperCase() + ' · ' + country.toUpperCase();
   document.getElementById('location-screen').classList.add('hidden');
@@ -1488,7 +1542,14 @@ function updateComboTotal() {
 }
 
 // ─── PURCHASE HISTORY & QR ────────────────────────────────
-const purchaseHistory = [];
+// ─── PURCHASE HISTORY por cuenta ─────────────────────────
+// Cada email tiene su propio array de tiquetes
+const purchaseHistoryByAccount = {};
+function getPurchaseHistory() {
+  const email = ACCOUNTS[currentAccountIdx] ? ACCOUNTS[currentAccountIdx].email : '__guest__';
+  if (!purchaseHistoryByAccount[email]) purchaseHistoryByAccount[email] = [];
+  return purchaseHistoryByAccount[email];
+}
 
 function showQRConfirmation(data) {
   // Build QR visual (simple SVG QR-like pattern based on code)
@@ -1534,7 +1595,9 @@ function validateQRCode() {
   const code = document.getElementById('qr-validate-input').value.trim().toUpperCase();
   const result = document.getElementById('qr-validate-result');
   if (!code) { result.innerHTML = '<span style="color:var(--neon-pink)">Ingresa un código.</span>'; return; }
-  const found = purchaseHistory.find(p => p.qrCode === code);
+  // Buscar en el historial de TODAS las cuentas para validación QR
+  const allTickets = Object.values(purchaseHistoryByAccount).flat();
+  const found = allTickets.find(p => p.qrCode === code);
   if (!found) {
     result.innerHTML = `<div class="qr-result-box qr-invalid">❌ Código no encontrado o inválido.</div>`;
     return;
@@ -1658,7 +1721,25 @@ async function purchaseTicket() {
     combo: comboDisplay, total: totalPrice,
     payment: selectedPayment
   };
-  purchaseHistory.push(purchaseData);
+  getPurchaseHistory().push(purchaseData);
+
+  // Guardar en servidor (persistencia real)
+  fetch('/api/tickets', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      movieTitle: purchaseData.movieTitle,
+      showTime:   purchaseData.showTime,
+      seats:      purchaseData.seats,
+      total:      purchaseData.total,
+      payment:    purchaseData.payment,
+      combo:      purchaseData.combo,
+      date:       purchaseData.date
+    })
+  }).then(r => r.json()).then(d => {
+    // Actualizar código QR con el del servidor si viene
+    if (d.success && d.ticket_code) purchaseData.qrCode = d.ticket_code;
+  }).catch(() => {});
 
   // Re-build seat map to show newly occupied seats
   buildAllSeatMaps();
@@ -1736,26 +1817,52 @@ function getAccountByEmail(email) {
 }
 
 // ─── LOGIN ────────────────────────────────────────────────
-function doLogin() {
-  const email = document.getElementById('login-email').value.trim();
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
   const pass  = document.getElementById('login-password').value;
   const errEl = document.getElementById('login-error');
   errEl.classList.remove('visible');
+  if (!email || !pass) { errEl.classList.add('visible'); return; }
 
-  const account = ACCOUNTS.find(a => a.email === email && a.pass === pass);
-  if (account) {
-    currentAccountIdx = ACCOUNTS.indexOf(account);
-    applyAccount(account);
-    document.getElementById('login-screen').classList.add('hidden');
-    document.getElementById('location-screen').classList.remove('hidden');
-    document.getElementById('nav-login-btn').style.display = 'none';
-    document.getElementById('user-menu-wrap').style.display = 'block';
-    buildAccountsList();
-  } else {
+  try {
+    const res  = await fetch('/api/login', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({email, password: pass})
+    });
+    const data = await res.json();
+    if (data.success) {
+      onLoginSuccess(data.user);
+    } else {
+      errEl.textContent = '❌ ' + (data.error || 'Correo o contraseña incorrectos');
+      errEl.classList.add('visible');
+      document.getElementById('login-password').value = '';
+      document.getElementById('login-password').focus();
+    }
+  } catch(e) {
+    errEl.textContent = '❌ Error de conexión. Intenta de nuevo.';
     errEl.classList.add('visible');
-    document.getElementById('login-password').value = '';
-    document.getElementById('login-password').focus();
   }
+}
+
+function onLoginSuccess(user) {
+  // Add to ACCOUNTS if not present (keeps local dropdown working)
+  if (!ACCOUNTS.find(a => a.email === user.email)) {
+    ACCOUNTS.push({
+      email: user.email, pass: '', name: user.name,
+      role: user.role, color: user.color, initials: user.initials
+    });
+  }
+  currentAccountIdx = ACCOUNTS.findIndex(a => a.email === user.email);
+  applyAccount(ACCOUNTS[currentAccountIdx]);
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('login-screen').style.display = '';
+  document.getElementById('location-screen').classList.remove('hidden');
+  document.getElementById('nav-login-btn').style.display = 'none';
+  document.getElementById('user-menu-wrap').style.display = 'block';
+  buildAccountsList();
+  // Load tickets from server for this user
+  loadTicketsFromServer();
 }
 
 function applyAccount(account) {
@@ -1766,7 +1873,9 @@ function applyAccount(account) {
 }
 
 function openLoginFromNav() {
-  document.getElementById('login-screen').classList.remove('hidden');
+  const ls = document.getElementById('login-screen');
+  ls.classList.remove('hidden');
+  ls.style.display = 'flex';
 }
 
 // ─── USER DROPDOWN ─────────────────────────────────────────
@@ -1814,16 +1923,32 @@ function switchAccount(idx) {
   showToastMsg(`👤 Cambiado a <strong>${account.name}</strong><br><span style="font-size:.8rem;color:var(--text-dim)">${account.email}</span>`, false);
 }
 
-function doLogout() {
+async function doLogout() {
+  // Notificar al servidor
+  try { await fetch('/api/logout', {method:'POST'}); } catch(e) {}
+
+  // Cerrar menú de usuario
   document.getElementById('user-dropdown').classList.remove('open');
   document.getElementById('nav-user-badge').classList.remove('open');
   document.getElementById('user-menu-wrap').style.display = 'none';
   document.getElementById('nav-login-btn').style.display = '';
+
+  // Ocultar pantalla principal y de ubicación
   document.getElementById('main-app').style.display = 'none';
-  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('location-screen').classList.add('hidden');
+  document.getElementById('location-screen').style.display = '';
+
+  // Mostrar login (forzar display:flex porque el CSS puede estar sobreescrito)
+  const loginScreen = document.getElementById('login-screen');
+  loginScreen.classList.remove('hidden');
+  loginScreen.style.display = 'flex';
+
+  // Limpiar campos
   document.getElementById('login-email').value = '';
   document.getElementById('login-password').value = '';
   document.getElementById('login-error').classList.remove('visible');
+
+  currentAccountIdx = 0;
 }
 
 // ─── SEAT MAP (3 zones) ────────────────────────────────────
@@ -1950,9 +2075,13 @@ function buildComboGrid() {
 }
 
 // ─── MY TICKETS ───────────────────────────────────────────
-function openMyTickets() {
+async function openMyTickets() {
   document.getElementById('mytickets-modal').classList.add('active');
   const list = document.getElementById('tickets-list');
+  list.innerHTML = '<div style="color:var(--text-dim);text-align:center;padding:2rem;">Cargando...</div>';
+  // Refrescar desde servidor
+  await loadTicketsFromServer();
+  const purchaseHistory = getPurchaseHistory();
   if (!purchaseHistory.length) {
     list.innerHTML = '<div style="color:var(--text-dim);text-align:center;padding:2rem;">No tienes tiquetes aún.</div>';
     return;
@@ -1978,32 +2107,103 @@ function openMyTickets() {
     </div>`).join('');
 }
 
-// ─── REGISTER ───────────────────────────────────────────
-function registerUser() {
-  const name = document.getElementById("reg-name").value;
-  const email = document.getElementById("reg-email").value;
-  const pass = document.getElementById("reg-pass").value;
 
-  if (!name || !email || !pass) {
-    alert("Completa todos los campos");
-    return;
-  }
-
-  // guardar usuario (tu lógica aquí)
-
-  closeRegisterModal();
-
-  // ahora sí ir a ubicación
-  document.getElementById("login-screen").style.display = "none";
-  document.getElementById("location-screen").style.display = "flex";
+// ─── SERVIDOR: cargar tiquetes del usuario ────────────────────────────────────
+async function loadTicketsFromServer() {
+  try {
+    const res  = await fetch('/api/tickets');
+    if (!res.ok) return;
+    const data = await res.json();
+    const email = ACCOUNTS[currentAccountIdx] ? ACCOUNTS[currentAccountIdx].email : null;
+    if (!email) return;
+    if (!purchaseHistoryByAccount[email]) purchaseHistoryByAccount[email] = [];
+    // Merge server tickets (avoid duplicates)
+    data.forEach(t => {
+      if (!purchaseHistoryByAccount[email].find(x => x.qrCode === t.qrCode)) {
+        purchaseHistoryByAccount[email].push(t);
+      }
+    });
+  } catch(e) {}
 }
 
+// ─── RESTAURAR SESIÓN AL RECARGAR ─────────────────────────────────────────────
+async function restoreSession() {
+  try {
+    const res  = await fetch('/api/me');
+    const data = await res.json();
+    if (data.logged_in && data.user) {
+      // El usuario ya tenía sesión activa en el servidor — restaurar sin pedir login
+      onLoginSuccess(data.user);
+      // Si había una ubicación guardada, restaurarla
+      const savedCity    = localStorage.getItem('cx_city');
+      const savedCountry = localStorage.getItem('cx_country');
+      if (savedCity && savedCountry) {
+        document.getElementById('location-screen').classList.add('hidden');
+        document.getElementById('main-app').style.display = 'block';
+        document.getElementById('nav-city-label').textContent = savedCity.toUpperCase();
+        document.getElementById('hero-city-label').textContent = savedCity;
+      }
+    }
+  } catch(e) {}
+}
+
+// Llamar al cargar la página
+restoreSession();
+// ─── REGISTER ───────────────────────────────────────────
 function openRegisterModal() {
-  document.getElementById("register-modal").style.display = "flex";
+  // Oculta el login y muestra el registro (mismo z-index superior)
+  document.getElementById("login-screen").style.display = "none";
+  const screen = document.getElementById("register-screen");
+  screen.style.display = "flex";
+  // Limpia campos y errores previos
+  ["reg-name","reg-email","reg-pass","reg-pass2"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+  const errEl = document.getElementById("reg-error");
+  if (errEl) { errEl.textContent = ""; errEl.style.display = "none"; }
 }
 
 function closeRegisterModal() {
-  document.getElementById("register-modal").style.display = "none";
+  document.getElementById("register-screen").style.display = "none";
+  // Vuelve a mostrar la pantalla de login
+  document.getElementById("login-screen").style.display = "flex";
+}
+
+async function registerUser() {
+  const name   = (document.getElementById("reg-name").value || "").trim();
+  const email  = (document.getElementById("reg-email").value || "").trim().toLowerCase();
+  const pass   = document.getElementById("reg-pass").value || "";
+  const pass2  = document.getElementById("reg-pass2").value || "";
+  const errEl  = document.getElementById("reg-error");
+
+  function showRegError(msg) {
+    errEl.textContent = "❌ " + msg;
+    errEl.style.display = "block";
+  }
+  errEl.style.display = "none";
+
+  if (!name || !email || !pass || !pass2) { showRegError("Completa todos los campos"); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showRegError("Ingresa un correo válido"); return; }
+  if (pass.length < 6) { showRegError("La contraseña debe tener mínimo 6 caracteres"); return; }
+  if (pass !== pass2) { showRegError("Las contraseñas no coinciden"); return; }
+
+  try {
+    const res  = await fetch('/api/register', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({name, email, password: pass})
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById("register-screen").style.display = "none";
+      onLoginSuccess(data.user);
+    } else {
+      showRegError(data.error || 'Error al crear la cuenta');
+    }
+  } catch(e) {
+    showRegError('Error de conexión. Intenta de nuevo.');
+  }
 }
 </script>
 </body>

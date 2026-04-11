@@ -1,14 +1,13 @@
 from flask import Flask, render_template, request, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
-import os, uuid
+import os, uuid, random
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'cinemax-secret-2024')
+app.secret_key = os.environ.get('SECRET_KEY', 'cinemax-secret-change-in-prod')
 
-app.config["SQLALCHEMY_DATABsssASE_URI"] = os.environ.get("DATABASE_URL")
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
+# ─── DATABASE ──────────────────────────────────────────────────────────────────
 DB_URL = os.environ.get('DATABASE_URL', 'sqlite:///cinemax.db')
 if DB_URL.startswith('postgres://'):
     DB_URL = DB_URL.replace('postgres://', 'postgresql://', 1)
@@ -19,61 +18,69 @@ db = SQLAlchemy(app)
 
 
 # ─── MODELS ────────────────────────────────────────────────────────────────────
+class User(db.Model):
+    __tablename__ = 'users'
+    id         = db.Column(db.Integer, primary_key=True)
+    name       = db.Column(db.String(150), nullable=False)
+    email      = db.Column(db.String(200), unique=True, nullable=False)
+    password   = db.Column(db.String(255), nullable=False)   # bcrypt hash
+    role       = db.Column(db.String(60),  default='Usuario')
+    color      = db.Column(db.String(20),  default='#00d4ff')
+    initials   = db.Column(db.String(4),   default='??')
+    created_at = db.Column(db.DateTime,   default=datetime.utcnow)
+    # Relations
+    cards      = db.relationship('Card',   backref='user', lazy=True, cascade='all,delete')
+    tickets    = db.relationship('Ticket', backref='user', lazy=True, cascade='all,delete')
+
 class Movie(db.Model):
-    id          = db.Column(db.Integer, primary_key=True)
-    title       = db.Column(db.String(200), nullable=False)
-    genre       = db.Column(db.String(100))
-    duration    = db.Column(db.Integer)
-    rating      = db.Column(db.String(10))
-    age_limit   = db.Column(db.Integer, default=0)
-    age_label   = db.Column(db.String(20), default='ATP')
-    tags        = db.Column(db.String(300))
-    director    = db.Column(db.String(150))
-    cast_list   = db.Column(db.String(300))
-    language    = db.Column(db.String(50), default='Subtitulada')
-    description = db.Column(db.Text)
-    poster_url  = db.Column(db.String(500))
-    is_active   = db.Column(db.Boolean, default=True)
+    __tablename__ = 'movies'
+    id            = db.Column(db.Integer, primary_key=True)
+    title         = db.Column(db.String(200), nullable=False)
+    genre         = db.Column(db.String(100))
+    duration      = db.Column(db.Integer)
+    rating        = db.Column(db.String(10))
+    age_limit     = db.Column(db.Integer, default=0)
+    age_label     = db.Column(db.String(20), default='ATP')
+    tags          = db.Column(db.String(300))
+    director      = db.Column(db.String(150))
+    cast_list     = db.Column(db.String(300))
+    language      = db.Column(db.String(50), default='Subtitulada')
+    description   = db.Column(db.Text)
+    poster_url    = db.Column(db.String(500))
+    is_active     = db.Column(db.Boolean, default=True)
     display_order = db.Column(db.Integer, default=99)
 
 class Showtime(db.Model):
+    __tablename__ = 'showtimes'
     id          = db.Column(db.Integer, primary_key=True)
-    movie_id    = db.Column(db.Integer, db.ForeignKey('movie.id'))
+    movie_id    = db.Column(db.Integer, db.ForeignKey('movies.id'))
     hall        = db.Column(db.String(50))
     show_time   = db.Column(db.String(10))
     format_type = db.Column(db.String(20))
     movie       = db.relationship('Movie', backref='showtimes')
 
 class Card(db.Model):
+    __tablename__ = 'cards'
     id            = db.Column(db.Integer, primary_key=True)
-    user_session  = db.Column(db.String(100))
-    card_number   = db.Column(db.String(20))
-    holder_name   = db.Column(db.String(100))
-    purchase_date = db.Column(db.Date)
-    expiry_date   = db.Column(db.Date)
+    user_id       = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    card_number   = db.Column(db.String(20))   # last 4 digits only
+    holder_name   = db.Column(db.String(150))
+    expiry_date   = db.Column(db.String(10))
     created_at    = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Ticket(db.Model):
+    __tablename__ = 'tickets'
     id             = db.Column(db.Integer, primary_key=True)
-    ticket_code    = db.Column(db.String(50), unique=True)
-    movie_id       = db.Column(db.Integer, db.ForeignKey('movie.id'))
-    showtime_id    = db.Column(db.Integer, db.ForeignKey('showtime.id'))
-    seat_type      = db.Column(db.String(20))
-    payment_method = db.Column(db.String(20))
-    card_id        = db.Column(db.Integer, db.ForeignKey('card.id'), nullable=True)
-    price          = db.Column(db.Float)
+    ticket_code    = db.Column(db.String(60), unique=True, nullable=False)
+    user_id        = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    movie_title    = db.Column(db.String(200))
+    show_time      = db.Column(db.String(20))
+    seats          = db.Column(db.Text)          # JSON list of seats
+    total          = db.Column(db.Integer, default=0)
+    payment_method = db.Column(db.String(30))
+    combo_detail   = db.Column(db.Text)
+    status         = db.Column(db.String(20), default='activo')
     purchased_at   = db.Column(db.DateTime, default=datetime.utcnow)
-    user_session   = db.Column(db.String(100))
-    movie          = db.relationship('Movie')
-    showtime       = db.relationship('Showtime')
-
-class User(db.Model):
-    id         = db.Column(db.Integer, primary_key=True)
-    name       = db.Column(db.String(120), nullable=False)
-    email      = db.Column(db.String(120), unique=True, nullable=False)
-    password   = db.Column(db.String(120), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
 
 # ─── LOCATION DATA ─────────────────────────────────────────────────────────────
 LOCATION_DATA = {
@@ -345,8 +352,8 @@ HALLS     = ["SALA 1","SALA 2","SALA 3","SALA 4","SALA 5"]
 FORMATS   = ["2D","3D","IMAX"]
 PRICES    = {"normal":18000,"vip":28000,"ultra":38000}
 
+
 def seed_db():
-    import random
     existing = {m.title: m for m in Movie.query.all()}
     for md in MOVIES_DATA:
         if md['title'] in existing:
@@ -359,13 +366,40 @@ def seed_db():
             for t in random.sample(SHOWTIMES, random.randint(2,4)):
                 db.session.add(Showtime(movie_id=movie.id, hall=random.choice(HALLS),
                                         show_time=t, format_type=random.choice(FORMATS)))
+    # Seed hardcoded accounts if they don't exist
+    SEED_ACCOUNTS = [
+        {'email':'jesusbarriosrodrig6@gmail.com',      'pass':'123456',           'name':'Jesús Barrios',  'role':'👑 Cuenta Principal','color':'#bf00ff','initials':'JB'},
+        {'email':'eilinsolano0123@gmail.com',           'pass':'987654321',        'name':'Eilin Solano',   'role':'Usuario','color':'#00d4ff','initials':'ES'},
+        {'email':'matiasserrato156@gmail.com',          'pass':'matias serrato 123','name':'Matías Serrato','role':'Usuario','color':'#ff006e','initials':'MS'},
+        {'email':'123kevindavidgomezposada@gmail.com',  'pass':'123456789',        'name':'Kevin Gómez',    'role':'Usuario','color':'#00ff9f','initials':'KG'},
+    ]
+    for acc in SEED_ACCOUNTS:
+        if not User.query.filter_by(email=acc['email']).first():
+            db.session.add(User(
+                name=acc['name'], email=acc['email'],
+                password=generate_password_hash(acc['pass']),
+                role=acc['role'], color=acc['color'], initials=acc['initials']
+            ))
     db.session.commit()
+
+
+# ─── HELPERS ───────────────────────────────────────────────────────────────────
+def current_user():
+    uid = session.get('user_id')
+    if not uid:
+        return None
+    return User.query.get(uid)
+
+def require_login():
+    u = current_user()
+    if not u:
+        return jsonify({'success': False, 'error': 'No autenticado'}), 401
+    return u
+
 
 # ─── ROUTES ────────────────────────────────────────────────────────────────────
 @app.route('/')
 def index():
-    if 'user_id' not in session:
-        session['user_id'] = str(uuid.uuid4())
     movies = Movie.query.filter_by(is_active=True).order_by(Movie.display_order).all()
     return render_template('index.html', movies=movies, location_data=LOCATION_DATA)
 
@@ -387,88 +421,188 @@ def api_showtimes(movie_id):
     return jsonify([{'id':s.id,'hall':s.hall,'show_time':s.show_time,'format_type':s.format_type}
                     for s in Showtime.query.filter_by(movie_id=movie_id).all()])
 
+
+# ─── AUTH ──────────────────────────────────────────────────────────────────────
+@app.route('/api/login', methods=['POST'])
+def api_login():
+    data     = request.json or {}
+    email    = (data.get('email') or '').strip().lower()
+    password = data.get('password') or ''
+    user = User.query.filter_by(email=email).first()
+    if not user or not check_password_hash(user.password, password):
+        return jsonify({'success': False, 'error': 'Correo o contraseña incorrectos'})
+    session['user_id'] = user.id
+    return jsonify({
+        'success': True,
+        'user': {
+            'id':       user.id,
+            'name':     user.name,
+            'email':    user.email,
+            'role':     user.role,
+            'color':    user.color,
+            'initials': user.initials
+        }
+    })
+
+@app.route('/api/register', methods=['POST'])
+def api_register():
+    data     = request.json or {}
+    name     = (data.get('name') or '').strip()
+    email    = (data.get('email') or '').strip().lower()
+    password = data.get('password') or ''
+    if not name or not email or not password:
+        return jsonify({'success': False, 'error': 'Faltan datos'})
+    if len(password) < 6:
+        return jsonify({'success': False, 'error': 'La contraseña debe tener mínimo 6 caracteres'})
+    if User.query.filter_by(email=email).first():
+        return jsonify({'success': False, 'error': 'Ese correo ya está registrado'})
+    initials = ''.join(w[0] for w in name.split() if w).upper()[:2] or '??'
+    palette  = ['#00d4ff','#bf00ff','#ff006e','#ffd700','#00ff9f']
+    color    = palette[User.query.count() % len(palette)]
+    user = User(name=name, email=email,
+                password=generate_password_hash(password),
+                initials=initials, color=color)
+    db.session.add(user)
+    db.session.commit()
+    session['user_id'] = user.id
+    return jsonify({
+        'success': True,
+        'user': {
+            'id':       user.id,
+            'name':     user.name,
+            'email':    user.email,
+            'role':     user.role,
+            'color':    user.color,
+            'initials': user.initials
+        }
+    })
+
+@app.route('/api/logout', methods=['POST'])
+def api_logout():
+    session.pop('user_id', None)
+    return jsonify({'success': True})
+
+@app.route('/api/me')
+def api_me():
+    """Devuelve el usuario de la sesión actual — usado al recargar la página."""
+    u = current_user()
+    if not u:
+        return jsonify({'logged_in': False})
+    return jsonify({
+        'logged_in': True,
+        'user': {
+            'id':       u.id,
+            'name':     u.name,
+            'email':    u.email,
+            'role':     u.role,
+            'color':    u.color,
+            'initials': u.initials
+        }
+    })
+
+
+# ─── CARDS ─────────────────────────────────────────────────────────────────────
 @app.route('/api/cards', methods=['GET'])
 def get_cards():
-    uid = session.get('user_id','')
-    return jsonify([{'id':c.id,'card_number':'**** **** **** '+c.card_number[-4:],
-        'holder_name':c.holder_name,'expiry_date':c.expiry_date.strftime('%m/%Y') if c.expiry_date else ''}
-        for c in Card.query.filter_by(user_session=uid).all()])
+    result = require_login()
+    if isinstance(result, tuple): return result
+    user = result
+    return jsonify([{
+        'id': c.id,
+        'card_number': '**** **** **** ' + (c.card_number or '')[-4:],
+        'holder_name': c.holder_name,
+        'expiry_date': c.expiry_date or ''
+    } for c in Card.query.filter_by(user_id=user.id).all()])
 
 @app.route('/api/cards', methods=['POST'])
 def create_card():
-    data = request.json
-    uid  = session.get('user_id', str(uuid.uuid4())); session['user_id'] = uid
+    result = require_login()
+    if isinstance(result, tuple): return result
+    user = result
+    data = request.json or {}
     try:
-        card = Card(user_session=uid, card_number=data['card_number'].replace(' ',''),
-            holder_name=data['holder_name'],
-            purchase_date=datetime.strptime(data['purchase_date'],'%Y-%m-%d').date(),
-            expiry_date=datetime.strptime(data['expiry_date'],'%Y-%m-%d').date())
-        db.session.add(card); db.session.commit()
-        return jsonify({'success':True,'id':card.id,'last4':card.card_number[-4:]})
-    except Exception as e:
-        return jsonify({'success':False,'error':str(e)}), 400
-
-@app.route('/api/purchase', methods=['POST'])
-def purchase_ticket():
-    data = request.json
-    uid  = session.get('user_id', str(uuid.uuid4())); session['user_id'] = uid
-    movie    = Movie.query.get(data['movie_id'])
-    showtime = Showtime.query.get(data['showtime_id'])
-    seat_type= data.get('seat_type','normal')
-    payment  = data.get('payment_method','cash')
-    price    = PRICES.get(seat_type,18000)
-    card_id  = None; card_last4 = None
-    if payment == 'card':
-        card_id = data.get('card_id')
-        card = Card.query.get(card_id)
-        if not card: return jsonify({'success':False,'error':'Tarjeta no encontrada'}), 400
-        card_last4 = card.card_number[-4:]
-    code = 'CX-'+str(uuid.uuid4())[:8].upper()
-    db.session.add(Ticket(ticket_code=code,movie_id=movie.id,showtime_id=showtime.id,
-        seat_type=seat_type,payment_method=payment,card_id=card_id,price=price,user_session=uid))
-    db.session.commit()
-    msg  = f"✅ Tiquete comprado para <strong>{movie.title}</strong><br>"
-    msg += f"🎬 {showtime.show_time} – {showtime.hall} ({showtime.format_type})<br>"
-    msg += f"💺 {seat_type.upper()} | 💰 ${price:,.0f} COP | 🎟️ <strong>{code}</strong><br>"
-    if payment=='card':
-        msg += f"💳 Tarjeta terminada en <strong>****{card_last4}</strong> utilizada para comprar el tiquete de <strong>{movie.title}</strong>."
-    else:
-        msg += "💵 Pago en efectivo registrado."
-    return jsonify({'success':True,'message':msg,'ticket_code':code})
-
-@app.route('/api/my-tickets')
-def my_tickets():
-    uid = session.get('user_id','')
-    return jsonify([{'ticket_code':t.ticket_code,'movie':t.movie.title if t.movie else '',
-        'showtime':t.showtime.show_time if t.showtime else '','hall':t.showtime.hall if t.showtime else '',
-        'seat_type':t.seat_type,'payment_method':t.payment_method,'price':t.price,
-        'purchased_at':t.purchased_at.strftime('%d/%m/%Y %H:%M')}
-        for t in Ticket.query.filter_by(user_session=uid).order_by(Ticket.purchased_at.desc()).all()])
-
-@app.route('/api/register', methods=['POST'])
-def register():
-    data = request.json
-    name = data.get('name')
-    email = data.get('email')
-    password = data.get('password')
-
-    if not name or not email or not password:
-        return jsonify({'success': False, 'error': 'Faltan datos'})
-
-    try:
-        user = User(name=name, email=email, password=password)
-        db.session.add(user)
+        # Store only last 4 digits
+        raw     = (data.get('card_number') or '').replace(' ','')
+        last4   = raw[-4:] if len(raw) >= 4 else raw
+        expiry  = data.get('expiry_date') or ''
+        card = Card(user_id=user.id, card_number=last4,
+                    holder_name=data.get('holder_name',''), expiry_date=expiry)
+        db.session.add(card)
         db.session.commit()
-        return jsonify({'success': True})
+        return jsonify({'success': True, 'id': card.id, 'last4': last4})
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 400
 
-# crear tablas y seed siempre (Render / Gunicorn)
+
+# ─── TICKETS ───────────────────────────────────────────────────────────────────
+@app.route('/api/tickets', methods=['POST'])
+def buy_ticket():
+    result = require_login()
+    if isinstance(result, tuple): return result
+    user = result
+    data        = request.json or {}
+    code        = 'CX-' + str(uuid.uuid4())[:8].upper()
+    movie_title = data.get('movieTitle', '')
+    show_time   = data.get('showTime', '')
+    seats       = data.get('seats', '')
+    total       = int(data.get('total', 0))
+    payment     = data.get('payment', 'efectivo')
+    combo       = data.get('combo', '')
+    ticket = Ticket(
+        ticket_code=code, user_id=user.id,
+        movie_title=movie_title, show_time=show_time,
+        seats=seats, total=total,
+        payment_method=payment, combo_detail=combo
+    )
+    db.session.add(ticket)
+    db.session.commit()
+    return jsonify({'success': True, 'ticket_code': code})
+
+@app.route('/api/tickets', methods=['GET'])
+def get_tickets():
+    result = require_login()
+    if isinstance(result, tuple): return result
+    user = result
+    tickets = Ticket.query.filter_by(user_id=user.id).order_by(Ticket.purchased_at.desc()).all()
+    return jsonify([{
+        'qrCode':       t.ticket_code,
+        'movieTitle':  t.movie_title,
+        'showTime':    t.show_time,
+        'seats':       t.seats,
+        'total':       t.total,
+        'payment':     t.payment_method,
+        'combo':       t.combo_detail or 'Sin combos',
+        'date':        t.purchased_at.strftime('%A, %d de %B de %Y') if t.purchased_at else '',
+        'status':      t.status
+    } for t in tickets])
+
+@app.route('/api/tickets/validate', methods=['GET'])
+def validate_ticket():
+    code = (request.args.get('code') or '').strip().upper()
+    t = Ticket.query.filter_by(ticket_code=code).first()
+    if not t:
+        return jsonify({'valid': False, 'error': 'Código no encontrado'})
+    return jsonify({
+        'valid': True,
+        'qrCode':      t.ticket_code,
+        'movieTitle':  t.movie_title,
+        'showTime':    t.show_time,
+        'seats':       t.seats,
+        'total':       t.total,
+        'payment':     t.payment_method,
+        'status':      t.status,
+        'date':        t.purchased_at.strftime('%d/%m/%Y %H:%M') if t.purchased_at else ''
+    })
+
+
+# ─── BOOT ──────────────────────────────────────────────────────────────────────
 with app.app_context():
     db.create_all()
     seed_db()
 
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all(); seed_db()
-    app.run(debug=True, port=5000)
+        db.create_all()
+        seed_db()
+    app.run(debug=False, port=5000)
