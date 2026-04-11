@@ -618,7 +618,7 @@ main{position:relative;z-index:2;max-width:1400px;margin:0 auto;padding:0 2rem 4
       <span class="login-divider-text">CINEMAX © 2025</span>
       <div class="login-divider-line"></div>
     </div>
-    <p class="login-hint">Cuenta 1: <strong>jesusbarriosrodrig6@gmail.com</strong> / <strong>123456</strong><br>Cuenta 2: <strong>eilinsolano0123@gmail.com</strong> / <strong>987654321</strong><br>Cuenta 3: <strong>matiasserrato156@gmail.com</strong> / <strong>matias serrato 123</strong><br>Cuenta 4: <strong>123kevindavidgomezposada@gmail.com</strong> / <strong>123456789</strong></p>
+    <p class="login-hint">¿No tienes cuenta? Haz clic en <strong>CREAR CUENTA</strong> para registrarte.</p>
   </div>
 </div>
 
@@ -757,11 +757,11 @@ main{position:relative;z-index:2;max-width:1400px;margin:0 auto;padding:0 2rem 4
     <button class="btn-nav btn-nav-solid" id="nav-login-btn" onclick="openLoginFromNav()">Iniciar Sesión</button>
     <div class="user-menu-wrap" id="user-menu-wrap" style="display:none;">
       <div class="nav-user-badge" id="nav-user-badge" onclick="toggleUserMenu()">
-        <span>👤</span><span id="nav-user-name">MATÍAS</span><span class="ucaret">▼</span>
+        <span>👤</span><span id="nav-user-name"></span><span class="ucaret">▼</span>
       </div>
       <div class="user-dropdown" id="user-dropdown">
         <div class="ud-header">
-          <div class="ud-email" id="ud-email-display">matiasserrato156@gmail.com</div>
+          <div class="ud-email" id="ud-email-display"></div>
           <div class="ud-name" id="ud-name-display">MATÍAS SERRATO</div>
           <div class="ud-role">👑 Cuenta Principal</div>
         </div>
@@ -1546,7 +1546,7 @@ function updateComboTotal() {
 // Cada email tiene su propio array de tiquetes
 const purchaseHistoryByAccount = {};
 function getPurchaseHistory() {
-  const email = ACCOUNTS[currentAccountIdx] ? ACCOUNTS[currentAccountIdx].email : '__guest__';
+  const email = currentUser ? currentUser.email : '__guest__';
   if (!purchaseHistoryByAccount[email]) purchaseHistoryByAccount[email] = [];
   return purchaseHistoryByAccount[email];
 }
@@ -1802,19 +1802,9 @@ function openQRValidatorModal() {
   document.getElementById('qr-validator-modal').classList.add('active');
 }
 
-// ─── ACCOUNTS ─────────────────────────────────────────────
-const ACCOUNTS = [
-  { email:'jesusbarriosrodrig6@gmail.com',        pass:'123456',           name:'Jesús Barrios',    role:'👑 Cuenta Principal', color:'#bf00ff', initials:'JB' },
-  { email:'eilinsolano0123@gmail.com',             pass:'987654321',        name:'Eilin Solano',     role:'Usuario',             color:'#00d4ff', initials:'ES' },
-  { email:'matiasserrato156@gmail.com',            pass:'matias serrato 123', name:'Matías Serrato', role:'Usuario',             color:'#ff006e', initials:'MS' },
-  { email:'123kevindavidgomezposada@gmail.com',    pass:'123456789',        name:'Kevin Gómez',      role:'Usuario',             color:'#00ff9f', initials:'KG' },
-];
-
-let currentAccountIdx = 0;
-
-function getAccountByEmail(email) {
-  return ACCOUNTS.find(a => a.email === email) || null;
-}
+// ─── AUTENTICACIÓN (100% servidor — sin cuentas locales) ──────────────────────
+// currentUser es el único estado de sesión. Viene del servidor.
+let currentUser = null;
 
 // ─── LOGIN ────────────────────────────────────────────────
 async function doLogin() {
@@ -1822,6 +1812,7 @@ async function doLogin() {
   const pass  = document.getElementById('login-password').value;
   const errEl = document.getElementById('login-error');
   errEl.classList.remove('visible');
+  errEl.textContent = '❌ Correo o contraseña incorrectos';
   if (!email || !pass) { errEl.classList.add('visible'); return; }
 
   try {
@@ -1846,30 +1837,40 @@ async function doLogin() {
 }
 
 function onLoginSuccess(user) {
-  // Add to ACCOUNTS if not present (keeps local dropdown working)
-  if (!ACCOUNTS.find(a => a.email === user.email)) {
-    ACCOUNTS.push({
-      email: user.email, pass: '', name: user.name,
-      role: user.role, color: user.color, initials: user.initials
-    });
+  currentUser = user;
+
+  // Actualizar navbar con datos del servidor
+  document.getElementById('nav-user-name').textContent = user.name.split(' ')[0].toUpperCase();
+  document.getElementById('ud-email-display').textContent = user.email;
+  document.getElementById('ud-name-display').textContent = user.name.toUpperCase();
+  const roleEl = document.getElementById('ud-role-display');
+  if (roleEl) roleEl.textContent = user.role || 'Usuario';
+
+  // Construir lista de cuentas (solo la del usuario actual — sin multiusuario local)
+  const list = document.getElementById('ud-accounts-list');
+  if (list) {
+    list.innerHTML = `
+      <div class="ud-account-item">
+        <div class="ud-account-avatar" style="background:${user.color}22;border:1px solid ${user.color}55;color:${user.color}">
+          ${user.initials || user.name.slice(0,2).toUpperCase()}
+        </div>
+        <div class="ud-account-info">
+          <div class="ud-account-name">${user.name}</div>
+          <div class="ud-account-email">${user.email}</div>
+        </div>
+        <div class="ud-account-check">✓</div>
+      </div>`;
   }
-  currentAccountIdx = ACCOUNTS.findIndex(a => a.email === user.email);
-  applyAccount(ACCOUNTS[currentAccountIdx]);
+
+  // Ocultar login / mostrar app
   document.getElementById('login-screen').classList.add('hidden');
-  document.getElementById('login-screen').style.display = '';
+  document.getElementById('login-screen').style.display = 'none';
   document.getElementById('location-screen').classList.remove('hidden');
   document.getElementById('nav-login-btn').style.display = 'none';
   document.getElementById('user-menu-wrap').style.display = 'block';
-  buildAccountsList();
-  // Load tickets from server for this user
-  loadTicketsFromServer();
-}
 
-function applyAccount(account) {
-  document.getElementById('nav-user-name').textContent = account.name.split(' ')[0].toUpperCase();
-  document.getElementById('ud-email-display').textContent = account.email;
-  document.getElementById('ud-name-display').textContent = account.name.toUpperCase();
-  document.getElementById('ud-role-display') && (document.getElementById('ud-role-display').textContent = account.role);
+  // Cargar tiquetes del servidor para este usuario
+  loadTicketsFromServer();
 }
 
 function openLoginFromNav() {
@@ -1880,14 +1881,13 @@ function openLoginFromNav() {
 
 // ─── USER DROPDOWN ─────────────────────────────────────────
 function toggleUserMenu() {
-  const badge   = document.getElementById('nav-user-badge');
-  const dropdown= document.getElementById('user-dropdown');
-  const isOpen  = dropdown.classList.contains('open');
+  const badge    = document.getElementById('nav-user-badge');
+  const dropdown = document.getElementById('user-dropdown');
+  const isOpen   = dropdown.classList.contains('open');
   dropdown.classList.toggle('open', !isOpen);
   badge.classList.toggle('open', !isOpen);
 }
 
-// Close dropdown when clicking outside
 document.addEventListener('click', e => {
   const wrap = document.getElementById('user-menu-wrap');
   if (wrap && !wrap.contains(e.target)) {
@@ -1896,59 +1896,35 @@ document.addEventListener('click', e => {
   }
 });
 
-function buildAccountsList() {
-  const list = document.getElementById('ud-accounts-list');
-  list.innerHTML = ACCOUNTS.map((acc, i) => `
-    <div class="ud-account-item" onclick="switchAccount(${i})">
-      <div class="ud-account-avatar" style="background:${acc.color}22;border:1px solid ${acc.color}55;color:${acc.color}">
-        ${acc.initials}
-      </div>
-      <div class="ud-account-info">
-        <div class="ud-account-name">${acc.name}</div>
-        <div class="ud-account-email">${acc.email}</div>
-      </div>
-      <div class="ud-account-check" id="check-acc-${i}" style="${i===currentAccountIdx?'':'display:none'}">✓</div>
-    </div>
-  `).join('');
-}
-
-function switchAccount(idx) {
-  if (idx === currentAccountIdx) { toggleUserMenu(); return; }
-  currentAccountIdx = idx;
-  const account = ACCOUNTS[idx];
-  applyAccount(account);
-  buildAccountsList();
-  toggleUserMenu();
-  // Show a welcome toast
-  showToastMsg(`👤 Cambiado a <strong>${account.name}</strong><br><span style="font-size:.8rem;color:var(--text-dim)">${account.email}</span>`, false);
-}
-
+// ─── LOGOUT ────────────────────────────────────────────────
 async function doLogout() {
-  // Notificar al servidor
   try { await fetch('/api/logout', {method:'POST'}); } catch(e) {}
 
-  // Cerrar menú de usuario
+  currentUser = null;
+
+  // Resetear historial en memoria
+  Object.keys(purchaseHistoryByAccount).forEach(k => delete purchaseHistoryByAccount[k]);
+
+  // Limpiar UI de usuario
   document.getElementById('user-dropdown').classList.remove('open');
   document.getElementById('nav-user-badge').classList.remove('open');
-  document.getElementById('user-menu-wrap').style.display = 'none';
-  document.getElementById('nav-login-btn').style.display = '';
+  document.getElementById('user-menu-wrap').style.display  = 'none';
+  document.getElementById('nav-login-btn').style.display   = '';
 
-  // Ocultar pantalla principal y de ubicación
+  // Ocultar pantallas interiores
   document.getElementById('main-app').style.display = 'none';
   document.getElementById('location-screen').classList.add('hidden');
   document.getElementById('location-screen').style.display = '';
 
-  // Mostrar login (forzar display:flex porque el CSS puede estar sobreescrito)
-  const loginScreen = document.getElementById('login-screen');
-  loginScreen.classList.remove('hidden');
-  loginScreen.style.display = 'flex';
+  // Mostrar login
+  const ls = document.getElementById('login-screen');
+  ls.classList.remove('hidden');
+  ls.style.display = 'flex';
 
   // Limpiar campos
-  document.getElementById('login-email').value = '';
+  document.getElementById('login-email').value    = '';
   document.getElementById('login-password').value = '';
   document.getElementById('login-error').classList.remove('visible');
-
-  currentAccountIdx = 0;
 }
 
 // ─── SEAT MAP (3 zones) ────────────────────────────────────
@@ -2110,12 +2086,12 @@ async function openMyTickets() {
 
 // ─── SERVIDOR: cargar tiquetes del usuario ────────────────────────────────────
 async function loadTicketsFromServer() {
+  if (!currentUser) return;
   try {
     const res  = await fetch('/api/tickets');
     if (!res.ok) return;
     const data = await res.json();
-    const email = ACCOUNTS[currentAccountIdx] ? ACCOUNTS[currentAccountIdx].email : null;
-    if (!email) return;
+    const email = currentUser.email;
     if (!purchaseHistoryByAccount[email]) purchaseHistoryByAccount[email] = [];
     // Merge server tickets (avoid duplicates)
     data.forEach(t => {
@@ -2132,22 +2108,26 @@ async function restoreSession() {
     const res  = await fetch('/api/me');
     const data = await res.json();
     if (data.logged_in && data.user) {
-      // El usuario ya tenía sesión activa en el servidor — restaurar sin pedir login
+      // Sesión activa en el servidor — restaurar sin pedir login
       onLoginSuccess(data.user);
-      // Si había una ubicación guardada, restaurarla
-      const savedCity    = localStorage.getItem('cx_city');
-      const savedCountry = localStorage.getItem('cx_country');
-      if (savedCity && savedCountry) {
+      // Restaurar ciudad guardada
+      const savedCity = localStorage.getItem('cx_city');
+      if (savedCity) {
         document.getElementById('location-screen').classList.add('hidden');
         document.getElementById('main-app').style.display = 'block';
         document.getElementById('nav-city-label').textContent = savedCity.toUpperCase();
-        document.getElementById('hero-city-label').textContent = savedCity;
+        const heroCity = document.getElementById('hero-city-label');
+        if (heroCity) heroCity.textContent = savedCity;
       }
     }
-  } catch(e) {}
+    // Si no hay sesión activa, el login-screen ya está visible por defecto — no hacer nada
+  } catch(e) {
+    // Error de red: dejar el login visible
+    console.warn('restoreSession error:', e);
+  }
 }
 
-// Llamar al cargar la página
+// Ejecutar al cargar la página
 restoreSession();
 // ─── REGISTER ───────────────────────────────────────────
 function openRegisterModal() {

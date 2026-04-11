@@ -8,7 +8,13 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'cinemax-secret-change-in-prod')
 
 # ─── DATABASE ──────────────────────────────────────────────────────────────────
-DB_URL = os.environ.get('DATABASE_URL', 'sqlite:///cinemax.db')
+DB_URL = os.environ.get('DATABASE_URL')
+if not DB_URL:
+    raise RuntimeError(
+        "DATABASE_URL no está configurada. "
+        "Agrega la variable de entorno en Render → Environment."
+    )
+# Render a veces entrega postgres:// pero SQLAlchemy necesita postgresql://
 if DB_URL.startswith('postgres://'):
     DB_URL = DB_URL.replace('postgres://', 'postgresql://', 1)
 app.config['SQLALCHEMY_DATABASE_URI'] = DB_URL
