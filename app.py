@@ -67,6 +67,14 @@ class Ticket(db.Model):
     movie          = db.relationship('Movie')
     showtime       = db.relationship('Showtime')
 
+class User(db.Model):
+    id         = db.Column(db.Integer, primary_key=True)
+    name       = db.Column(db.String(120), nullable=False)
+    email      = db.Column(db.String(120), unique=True, nullable=False)
+    password   = db.Column(db.String(120), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
 # ─── LOCATION DATA ─────────────────────────────────────────────────────────────
 LOCATION_DATA = {
     "Colombia":  ["Armenia","Barranquilla","Bogotá","Bucaramanga","Buenaventura",
@@ -437,7 +445,23 @@ def my_tickets():
         'purchased_at':t.purchased_at.strftime('%d/%m/%Y %H:%M')}
         for t in Ticket.query.filter_by(user_session=uid).order_by(Ticket.purchased_at.desc()).all()])
 
+@app.route('/api/register', methods=['POST'])
+def register():
+    data = request.json
+    name = data.get('name')
+    email = data.get('email')
+    password = data.get('password')
 
+    if not name or not email or not password:
+        return jsonify({'success': False, 'error': 'Faltan datos'})
+
+    try:
+        user = User(name=name, email=email, password=password)
+        db.session.add(user)
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
 
 # crear tablas y seed siempre (Render / Gunicorn)
 with app.app_context():

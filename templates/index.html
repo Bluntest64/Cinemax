@@ -604,6 +604,12 @@ main{position:relative;z-index:2;max-width:1400px;margin:0 auto;padding:0 2rem 4
            onkeydown="if(event.key==='Enter') doLogin()">
 
     <button class="login-btn" onclick="doLogin()">▸ INGRESAR</button>
+    <!-- BOTON REGISTRARSE -->
+  <div style="text-align:center;margin-top:10px;">
+    <button class="login-btn" onclick="openRegisterModal()">▸ CREAR CUENTA
+    </button>
+  </div>
+
     <div class="login-error" id="login-error">❌ Correo o contraseña incorrectos</div>
 
     <div class="login-divider">
@@ -1257,6 +1263,28 @@ main{position:relative;z-index:2;max-width:1400px;margin:0 auto;padding:0 2rem 4
   <div id="toast-msg"></div>
 </div>
 
+<div class="modal-overlay" id="register-modal">
+  <div class="modal" style="max-width:450px;">
+    <button class="modal-close" onclick="closeRegisterModal()">✕</button>
+
+    <div style="padding:2rem;">
+      <h2 style="margin-bottom:1rem;">Crear cuenta</h2>
+
+      <label>Nombre</label>
+      <input id="reg-name">
+
+      <label>Correo</label>
+      <input id="reg-email" type="email">
+
+      <label>Contraseña</label>
+      <input id="reg-pass" type="password">
+
+      <button onclick="registerUser()">
+        Registrarse
+      </button>
+    </div>
+  </div>
+</div>
 <!-- ════════════════════════════════════════════════════════
      JAVASCRIPT
 ════════════════════════════════════════════════════════ -->
@@ -1946,6 +1974,36 @@ function openMyTickets() {
           '💵 Efectivo'}</div>
       </div>
     </div>`).join('');
+}
+
+// ─── REGISTER ───────────────────────────────────────────
+function openRegisterModal(){
+  document.getElementById('register-modal').style.display = "block";
+}
+
+function closeRegisterModal(){
+  document.getElementById('register-modal').style.display = "none";
+}
+
+async function registerUser(){
+  const name = document.getElementById('reg-name').value;
+  const email = document.getElementById('reg-email').value;
+  const pass = document.getElementById('reg-pass').value;
+
+  const res = await fetch('/api/register',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({name,email,password:pass})
+  });
+
+  const data = await res.json();
+
+  if(data.success){
+    alert("Cuenta creada");
+    closeRegisterModal();
+  }else{
+    alert(data.error);
+  }
 }
 </script>
 </body>
