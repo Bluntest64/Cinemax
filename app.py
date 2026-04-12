@@ -682,14 +682,18 @@ def seed_db():
 
     # ── Cuentas del equipo ───────────────────────────────────────────────────────
     SEED_ACCOUNTS = [
+        # ── ADMINISTRADOR (acceso al panel de control) ────────────────────────
+        {'email':'admin@cinemax.com', 'pass':'admin123',
+         'name':'Administrador', 'role':'admin','color':'#ffd700','initials':'AD'},
+        # ── Cuentas del equipo ────────────────────────────────────────────────
         {'email':'jesusbarriosrodrig6@gmail.com',     'pass':'123456',
-         'name':'Jesús Barrios',  'role':'👑 Cuenta Principal','color':'#bf00ff','initials':'JB'},
+         'name':'Jesús Barrios',  'role':'usuario','color':'#bf00ff','initials':'JB'},
         {'email':'eilinsolano0123@gmail.com',          'pass':'987654321',
-         'name':'Eilin Solano',   'role':'Usuario','color':'#00d4ff','initials':'ES'},
+         'name':'Eilin Solano',   'role':'usuario','color':'#00d4ff','initials':'ES'},
         {'email':'matiasserrato156@gmail.com',         'pass':'matias serrato 123',
-         'name':'Matías Serrato','role':'Usuario','color':'#ff006e','initials':'MS'},
+         'name':'Matías Serrato','role':'usuario','color':'#ff006e','initials':'MS'},
         {'email':'123kevindavidgomezposada@gmail.com', 'pass':'123456789',
-         'name':'Kevin Gómez',   'role':'Usuario','color':'#00ff9f','initials':'KG'},
+         'name':'Kevin Gómez',   'role':'usuario','color':'#00ff9f','initials':'KG'},
     ]
     for acc in SEED_ACCOUNTS:
         try:
@@ -983,13 +987,219 @@ def confirm_ticket(token):
         seats=ticket.seats,
         total=ticket.total)
 
+# ─── ADMIN API ────────────────────────────────────────────────────────────────
+def require_admin():
+    u = current_user()
+    if not u:
+        return jsonify({'error': 'No autenticado'}), 401
+    if u.role != 'admin':
+        return jsonify({'error': 'Acceso restringido'}), 403
+    return u
+
+@app.route('/api/admin/stats')
+def admin_stats():
+    result = require_admin()
+    if isinstance(result, tuple): return result
+
+    # ── Métricas generales ──────────────────────────────────────────────────────
+    from sqlalchemy import func, case
+
+    activos   = Ticket.query.filter(Ticket.status.in_(['activo','usado'])).all()
+    pendientes = Ticket.query.filter_by(status='pendiente').count()
+    total_tickets = len(activos)
+    ingresos_total = sum(t.total for t in activos)
+
+    # ── Por película ────────────────────────────────────────────────────────────
+    por_pelicula = {}
+    for t in activos:
+        key = t.movie_title or 'Sin título'
+        if key not in por_pelicula:
+            por_pelicula[key] = {'tickets': 0, 'ingresos': 0}
+        por_pelicula[key]['tickets']  += 1
+        por_pelicula[key]['ingresos'] += t.total
+
+    ranking = sorted(por_pelicula.items(), key=lambda x: x[1]['tickets'], reverse=True)
+
+    # ── Por método de pago ──────────────────────────────────────────────────────
+    por_pago = {}
+    for t in activos:
+        p = t.payment_method or 'efectivo'
+        por_pago[p] = por_pago.get(p, 0) + 1
+
+    # ── Snacks / combos ─────────────────────────────────────────────────────────
+    snack_counter = {}
+    import re
+    for t in activos:
+        if t.combo_detail and t.combo_detail != 'Sin combos':
+            # Parse "🍿 Crispeta Grande x3, ☕ Café x1"
+            parts = t.combo_detail.split(',')
+            for part in parts:
+                part = part.strip()
+                if not part or part == 'Sin combos':
+                    continue
+                # Extract quantity suffix "xN"
+                qty = 1
+                if ' x' in part:
+                    try:
+                        qty = int(part.rsplit(' x', 1)[1].strip())
+                        part = part.rsplit(' x', 1)[0].strip()
+                    except Exception:
+                        pass
+                # Strip leading non-letter chars (emojis, spaces)
+                name = part.lstrip()
+                while name and not (name[0].isalpha() or name[0].isdigit()):
+                    name = name[1:].lstrip()
+                name = name.strip()
+                if name:
+                    snack_counter[name] = snack_counter.get(name, 0) + qty
+
+    snacks = sorted(snack_counter.items(), key=lambda x: x[1], reverse=True)
+
+    # ── Últimos 10 tiquetes ─────────────────────────────────────────────────────
+    recientes = (Ticket.query
+                 .filter(Ticket.status.in_(['activo', 'usado', 'pendiente']))
+                 .order_by(Ticket.purchased_at.desc())
+                 .limit(10)
+                 .all())
+
+    # ── Usuarios registrados ────────────────────────────────────────────────────
+    total_usuarios = User.query.filter(User.role != 'admin').count()
+
+    return jsonify({
+        'total_tickets':   total_tickets,
+        'ingresos_total':  ingresos_total,
+        'pendientes':      pendientes,
+        'total_usuarios':  total_usuarios,
+        'ranking': [
+            {'pelicula': k, 'tickets': v['tickets'], 'ingresos': v['ingresos']}
+            for k, v in ranking
+        ],
+        'por_pago': por_pago,
+        'snacks':   [{'nombre': k, 'cantidad': v} for k, v in snacks],
+        'recientes': [{
+            'codigo':   t.ticket_code,
+            'pelicula': t.movie_title,
+            'usuario':  (db.session.get(User, t.user_id).email if t.user_id and db.session.get(User, t.user_id) else '—'),
+            'total':    t.total,
+            'estado':   t.status,
+            'fecha':    fecha_es(t.purchased_at),
+            'asientos': t.seats or '—',
+            'pago':     t.payment_method or '—',
+        } for t in recientes],
+    })
+
+# ─── MIGRATION: agregar columnas nuevas si no existen (seguro en Render) ────────
+def run_migrations():
+    """
+    db.create_all() NO agrega columnas a tablas existentes.
+    Esta función las agrega manualmente con ALTER TABLE IF NOT EXISTS.
+    Es idempotente: si la columna ya existe, no hace nada.
+    """
+    migrations = [
+        # Tabla tickets — columnas añadidas después del deploy inicial
+        "ALTER TABLE tickets ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'pendiente'",
+        "ALTER TABLE tickets ADD COLUMN IF NOT EXISTS confirm_token VARCHAR(80)",
+        "ALTER TABLE tickets ADD COLUMN IF NOT EXISTS purchased_at TIMESTAMP DEFAULT NOW()",
+        "ALTER TABLE tickets ADD COLUMN IF NOT EXISTS combo_detail TEXT",
+        "ALTER TABLE tickets ADD COLUMN IF NOT EXISTS seats TEXT",
+        "ALTER TABLE tickets ADD COLUMN IF NOT EXISTS show_time VARCHAR(20)",
+        "ALTER TABLE tickets ADD COLUMN IF NOT EXISTS movie_title VARCHAR(200)",
+        "ALTER TABLE tickets ADD COLUMN IF NOT EXISTS payment_method VARCHAR(30)",
+        "ALTER TABLE tickets ADD COLUMN IF NOT EXISTS total INTEGER DEFAULT 0",
+        "ALTER TABLE tickets ADD COLUMN IF NOT EXISTS user_id INTEGER",
+        # Tabla users — columnas nuevas
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(60) DEFAULT 'usuario'",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS color VARCHAR(20) DEFAULT '#00d4ff'",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS initials VARCHAR(4) DEFAULT '??'",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW()",
+        # Unique index para confirm_token (solo si no existe)
+        """DO $$ BEGIN
+            IF NOT EXISTS (
+                SELECT 1 FROM pg_indexes
+                WHERE tablename='tickets' AND indexname='uq_tickets_confirm_token'
+            ) THEN
+                CREATE UNIQUE INDEX uq_tickets_confirm_token
+                ON tickets (confirm_token) WHERE confirm_token IS NOT NULL;
+            END IF;
+        END $$""",
+    ]
+    import psycopg2
+    try:
+        conn = psycopg2.connect(os.environ.get('DATABASE_URL', '').replace('postgres://', 'postgresql://', 1))
+        conn.autocommit = True
+        cur = conn.cursor()
+        for sql in migrations:
+            try:
+                cur.execute(sql)
+                print(f"[MIGRATION] OK: {sql[:60]}...")
+            except Exception as e:
+                print(f"[MIGRATION] Skip (ya existe?): {e}")
+        conn.close()
+        print("[MIGRATION] Todas las migraciones completadas.")
+    except Exception as e:
+        print(f"[MIGRATION] Error de conexión: {e}")
+
+
+def dedup_rascal():
+    """
+    Elimina entradas duplicadas de Rascal en la BD.
+    Conserva la que tiene poster_url='/static/posters/RascalDoesNotDramofaDreamingGirl(2019).jpg'
+    y elimina todas las demás variantes sin imagen o con título diferente.
+    """
+    # Buscar todas las películas cuyo título contenga 'Rascal' y 'Dream'
+    rascals = Movie.query.filter(
+        Movie.title.ilike('%rascal%does%not%dream%dreaming%')
+    ).all()
+
+    if len(rascals) <= 1:
+        # Si hay 0 o 1, no hay duplicado de la primera película
+        pass
+    else:
+        # Ordenar: primero los que tienen poster_url correcto
+        rascals.sort(key=lambda m: (
+            0 if (m.poster_url and 'RascalDoesNotDramofaDreamingGirl' in m.poster_url) else 1,
+            m.id
+        ))
+        keep = rascals[0]  # el primero es el bueno
+        for dup in rascals[1:]:
+            try:
+                # Eliminar horarios del duplicado
+                Showtime.query.filter_by(movie_id=dup.id).delete()
+                db.session.delete(dup)
+                db.session.commit()
+                print(f"[DEDUP] Eliminado duplicado Rascal id={dup.id} title='{dup.title}'")
+            except Exception as e:
+                db.session.rollback()
+                print(f"[DEDUP] Error eliminando id={dup.id}: {e}")
+
+    # También eliminar entradas sin imagen ni título exacto (typos en el título)
+    # que puedan haber quedado de inserciones manuales
+    imposters = Movie.query.filter(
+        Movie.title.ilike('%rascal%dream%'),
+        ~Movie.title.ilike('%dreaming girl%')
+    ).all()
+    for m in imposters:
+        try:
+            Showtime.query.filter_by(movie_id=m.id).delete()
+            db.session.delete(m)
+            db.session.commit()
+            print(f"[DEDUP] Eliminado impostór id={m.id} title='{m.title}'")
+        except Exception as e:
+            db.session.rollback()
+            print(f"[DEDUP] Error con impostór id={m.id}: {e}")
+
+
 # ─── BOOT ──────────────────────────────────────────────────────────────────────
 with app.app_context():
-    db.create_all()
-    seed_db()
+    run_migrations()   # ← PRIMERO: asegurar que todas las columnas existan
+    db.create_all()    # ← crea tablas nuevas si no existen
+    dedup_rascal()     # ← limpia duplicados de Rascal
+    seed_db()          # ← inserta/actualiza películas y cuentas
 
 if __name__ == '__main__':
     with app.app_context():
+        run_migrations()
         db.create_all()
+        dedup_rascal()
         seed_db()
     app.run(debug=False, port=5000)

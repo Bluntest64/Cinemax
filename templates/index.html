@@ -580,6 +580,141 @@ main{position:relative;z-index:2;max-width:1400px;margin:0 auto;padding:0 2rem 4
 .qr-result-row:last-child{border-bottom:none;}
 .qr-result-row span{color:var(--text-dim);font-size:.8rem;}
 .qr-result-row strong{color:#fff;}
+
+/* ─── ADMIN PANEL ─────────────────────────────────────────── */
+#admin-panel{
+  display:none;position:relative;z-index:2;
+  max-width:1300px;margin:0 auto;padding:2rem;
+}
+.admin-header{
+  display:flex;align-items:center;gap:1rem;
+  margin-bottom:2rem;padding-bottom:1.5rem;
+  border-bottom:1px solid var(--card-border);
+}
+.admin-badge{
+  background:linear-gradient(135deg,var(--neon-gold),#ff9500);
+  color:#000;padding:.35rem .9rem;border-radius:4px;
+  font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;
+}
+.admin-title{
+  font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:3px;color:#fff;
+}
+.admin-subtitle{color:var(--text-dim);font-size:.85rem;margin-top:.1rem;}
+.admin-refresh{
+  margin-left:auto;background:transparent;border:1px solid var(--glass-border);
+  color:var(--text-dim);padding:.5rem 1.2rem;border-radius:6px;cursor:pointer;
+  font-family:'Rajdhani',sans-serif;font-weight:600;font-size:.8rem;letter-spacing:1px;
+  transition:all .3s;
+}
+.admin-refresh:hover{border-color:var(--neon-blue);color:var(--neon-blue);}
+
+/* KPI cards */
+.admin-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:2rem;}
+.kpi-card{
+  background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:12px;padding:1.25rem 1.5rem;position:relative;overflow:hidden;
+  transition:transform .3s,box-shadow .3s;
+}
+.kpi-card:hover{transform:translateY(-3px);box-shadow:0 0 30px rgba(0,0,0,.5);}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.kpi-card.gold::before {background:linear-gradient(90deg,var(--neon-gold),#ff9500);}
+.kpi-card.blue::before {background:linear-gradient(90deg,var(--neon-blue),var(--neon-purple));}
+.kpi-card.green::before{background:linear-gradient(90deg,var(--neon-green),var(--neon-blue));}
+.kpi-card.pink::before {background:linear-gradient(90deg,var(--neon-pink),var(--neon-purple));}
+.kpi-card.purple::before{background:linear-gradient(90deg,var(--neon-purple),var(--neon-pink));}
+.kpi-label{font-family:'Orbitron',sans-serif;font-size:.6rem;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;margin-bottom:.6rem;}
+.kpi-value{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;letter-spacing:1px;line-height:1;}
+.kpi-card.gold  .kpi-value{color:var(--neon-gold);}
+.kpi-card.blue  .kpi-value{color:var(--neon-blue);}
+.kpi-card.green .kpi-value{color:var(--neon-green);}
+.kpi-card.pink  .kpi-value{color:var(--neon-pink);}
+.kpi-card.purple.kpi-value{color:#d580ff;}
+.kpi-sub{font-size:.72rem;color:var(--text-dim);margin-top:.3rem;}
+.kpi-icon{position:absolute;top:1.2rem;right:1.2rem;font-size:1.6rem;opacity:.25;}
+
+/* Section cards */
+.admin-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;}
+.admin-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;}
+@media(max-width:900px){.admin-grid-2,.admin-grid-3{grid-template-columns:1fr;}}
+.admin-card{
+  background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:12px;overflow:hidden;
+}
+.admin-card-header{
+  padding:1rem 1.25rem;border-bottom:1px solid var(--card-border);
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(255,255,255,.02);
+}
+.admin-card-title{
+  font-family:'Orbitron',sans-serif;font-size:.65rem;letter-spacing:3px;
+  color:var(--neon-blue);text-transform:uppercase;
+}
+.admin-card-body{padding:1.25rem;}
+
+/* Ranking table */
+.ranking-row{
+  display:flex;align-items:center;gap:.75rem;
+  padding:.65rem 0;border-bottom:1px solid var(--card-border);
+}
+.ranking-row:last-child{border-bottom:none;}
+.rank-num{
+  font-family:'Bebas Neue',sans-serif;font-size:1.4rem;
+  min-width:28px;text-align:center;
+}
+.rank-1{color:var(--neon-gold);}
+.rank-2{color:rgba(192,192,192,.9);}
+.rank-3{color:rgba(205,127,50,.9);}
+.rank-other{color:var(--text-dim);}
+.rank-info{flex:1;min-width:0;}
+.rank-title{font-weight:600;font-size:.88rem;color:var(--text-main);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rank-bar-wrap{margin-top:.3rem;height:4px;background:var(--card-border);border-radius:99px;}
+.rank-bar{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--neon-blue),var(--neon-purple));}
+.rank-stats{text-align:right;min-width:80px;}
+.rank-tickets{font-family:'Orbitron',sans-serif;font-size:.65rem;color:var(--neon-blue);}
+.rank-money{font-size:.78rem;color:var(--neon-gold);font-weight:600;margin-top:.15rem;}
+
+/* Payment breakdown */
+.pay-row{display:flex;align-items:center;gap:.75rem;padding:.55rem 0;border-bottom:1px solid var(--card-border);}
+.pay-row:last-child{border-bottom:none;}
+.pay-icon{font-size:1.2rem;width:28px;text-align:center;}
+.pay-name{flex:1;font-size:.88rem;color:var(--text-main);font-weight:500;}
+.pay-count{font-family:'Orbitron',sans-serif;font-size:.7rem;color:var(--neon-green);}
+
+/* Snack counter */
+.snack-row{display:flex;align-items:center;gap:.75rem;padding:.55rem 0;border-bottom:1px solid var(--card-border);}
+.snack-row:last-child{border-bottom:none;}
+.snack-name{flex:1;font-size:.88rem;color:var(--text-main);}
+.snack-qty{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--neon-gold);}
+.snack-unit{font-size:.65rem;color:var(--text-dim);}
+
+/* Recent tickets table */
+.recent-table{width:100%;border-collapse:collapse;font-size:.8rem;}
+.recent-table th{
+  padding:.6rem .75rem;text-align:left;color:var(--text-dim);
+  font-family:'Orbitron',sans-serif;font-size:.55rem;letter-spacing:2px;
+  border-bottom:1px solid var(--card-border);white-space:nowrap;
+}
+.recent-table td{padding:.65rem .75rem;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle;}
+.recent-table tr:last-child td{border-bottom:none;}
+.recent-table tr:hover td{background:rgba(255,255,255,.02);}
+.status-pill{
+  display:inline-block;padding:.15rem .55rem;border-radius:3px;
+  font-family:'Orbitron',sans-serif;font-size:.55rem;letter-spacing:1px;border:1px solid;
+}
+.status-activo   {border-color:var(--neon-green);color:var(--neon-green);background:rgba(0,255,159,.08);}
+.status-pendiente{border-color:var(--neon-gold);color:var(--neon-gold);background:rgba(255,215,0,.08);}
+.status-usado    {border-color:var(--text-dim);color:var(--text-dim);background:rgba(255,255,255,.04);}
+
+/* Admin navbar override */
+.admin-nav-link{
+  color:var(--neon-gold) !important;
+  font-family:'Orbitron',sans-serif;font-size:.6rem;letter-spacing:2px;
+}
+.admin-nav-badge{
+  background:linear-gradient(135deg,var(--neon-gold),#ff9500);
+  color:#000 !important;padding:.3rem .7rem;border-radius:4px;
+  font-family:'Bebas Neue',sans-serif;font-size:.75rem;letter-spacing:2px;
+}
 </style>
 </head>
 <body>
@@ -992,6 +1127,127 @@ main{position:relative;z-index:2;max-width:1400px;margin:0 auto;padding:0 2rem 4
 
   </div>
 </section>
+
+<!-- ════════════════════════════════════════════════════════
+     ADMIN PANEL (visible solo para role='admin')
+════════════════════════════════════════════════════════ -->
+<div id="admin-panel">
+  <div class="admin-header">
+    <div>
+      <div class="d-flex" style="display:flex;align-items:center;gap:.75rem;margin-bottom:.35rem;">
+        <span class="admin-badge">⚙ ADMIN</span>
+        <h1 class="admin-title">Panel de Control</h1>
+      </div>
+      <div class="admin-subtitle" id="admin-last-update">Cargando datos...</div>
+    </div>
+    <button class="admin-refresh" onclick="loadAdminStats()">↻ Actualizar</button>
+  </div>
+
+  <!-- KPIs -->
+  <div class="admin-kpis">
+    <div class="kpi-card gold">
+      <div class="kpi-label">Ingresos Totales</div>
+      <div class="kpi-value" id="kpi-ingresos">—</div>
+      <div class="kpi-sub">COP confirmados</div>
+      <div class="kpi-icon">💰</div>
+    </div>
+    <div class="kpi-card blue">
+      <div class="kpi-label">Tiquetes Vendidos</div>
+      <div class="kpi-value" id="kpi-tickets">—</div>
+      <div class="kpi-sub">activos + usados</div>
+      <div class="kpi-icon">🎟️</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">Usuarios Registrados</div>
+      <div class="kpi-value" id="kpi-usuarios">—</div>
+      <div class="kpi-sub">cuentas activas</div>
+      <div class="kpi-icon">👥</div>
+    </div>
+    <div class="kpi-card pink">
+      <div class="kpi-label">Pendientes Confirmar</div>
+      <div class="kpi-value" id="kpi-pendientes">—</div>
+      <div class="kpi-sub">esperando email</div>
+      <div class="kpi-icon">⏳</div>
+    </div>
+  </div>
+
+  <!-- Ranking + Pagos -->
+  <div class="admin-grid-2">
+    <!-- Ranking películas -->
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <span class="admin-card-title">🏆 Ranking de Películas</span>
+        <span style="font-size:.7rem;color:var(--text-dim);">por tiquetes</span>
+      </div>
+      <div class="admin-card-body" id="admin-ranking">
+        <div style="color:var(--text-dim);text-align:center;padding:1rem;">Cargando...</div>
+      </div>
+    </div>
+
+    <!-- Ingresos por película -->
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <span class="admin-card-title">💵 Ingresos por Película</span>
+        <span style="font-size:.7rem;color:var(--text-dim);">COP confirmados</span>
+      </div>
+      <div class="admin-card-body" id="admin-ingresos-pelicula">
+        <div style="color:var(--text-dim);text-align:center;padding:1rem;">Cargando...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagos + Snacks -->
+  <div class="admin-grid-2">
+    <!-- Métodos de pago -->
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <span class="admin-card-title">💳 Métodos de Pago</span>
+      </div>
+      <div class="admin-card-body" id="admin-pagos">
+        <div style="color:var(--text-dim);text-align:center;padding:1rem;">Cargando...</div>
+      </div>
+    </div>
+
+    <!-- Snacks vendidos -->
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <span class="admin-card-title">🍿 Combos Vendidos</span>
+        <span style="font-size:.7rem;color:var(--text-dim);">unidades totales</span>
+      </div>
+      <div class="admin-card-body" id="admin-snacks">
+        <div style="color:var(--text-dim);text-align:center;padding:1rem;">Cargando...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tiquetes recientes -->
+  <div class="admin-card">
+    <div class="admin-card-header">
+      <span class="admin-card-title">🕐 Últimos Tiquetes</span>
+      <span style="font-size:.7rem;color:var(--text-dim);">10 más recientes</span>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="recent-table" id="admin-recent">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Película</th>
+            <th>Usuario</th>
+            <th>Asientos</th>
+            <th>Total</th>
+            <th>Pago</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody id="admin-recent-tbody">
+          <tr><td colspan="8" style="text-align:center;color:var(--text-dim);padding:1.5rem;">Cargando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 </div><!-- /main-app -->
 
 <!-- ════════════════════════════════════════════════════════
@@ -1873,15 +2129,25 @@ async function doLogin() {
 
 function onLoginSuccess(user) {
   currentUser = user;
+  const isAdmin = user.role === 'admin';
 
-  // Actualizar navbar con datos del servidor
-  document.getElementById('nav-user-name').textContent = user.name.split(' ')[0].toUpperCase();
+  // ── Navbar ──────────────────────────────────────────────────────────────────
+  const nameEl = document.getElementById('nav-user-name');
+  nameEl.textContent = isAdmin ? 'ADMIN' : user.name.split(' ')[0].toUpperCase();
+
+  // Badge dorado para admin en la navbar
+  const badge = document.getElementById('nav-user-badge');
+  if (isAdmin) {
+    badge.style.borderColor = 'var(--neon-gold)';
+    badge.style.color = 'var(--neon-gold)';
+    badge.querySelector('span').textContent = '⚙';
+  }
+
   document.getElementById('ud-email-display').textContent = user.email;
   document.getElementById('ud-name-display').textContent = user.name.toUpperCase();
   const roleEl = document.getElementById('ud-role-display');
-  if (roleEl) roleEl.textContent = user.role || 'Usuario';
+  if (roleEl) roleEl.textContent = isAdmin ? '⚙ ADMINISTRADOR' : (user.role || 'Usuario');
 
-  // Construir lista de cuentas (solo la del usuario actual — sin multiusuario local)
   const list = document.getElementById('ud-accounts-list');
   if (list) {
     list.innerHTML = `
@@ -1897,15 +2163,49 @@ function onLoginSuccess(user) {
       </div>`;
   }
 
-  // Ocultar login / mostrar app
+  // ── Mostrar / ocultar secciones según rol ────────────────────────────────────
   document.getElementById('login-screen').classList.add('hidden');
   document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('location-screen').classList.remove('hidden');
   document.getElementById('nav-login-btn').style.display = 'none';
   document.getElementById('user-menu-wrap').style.display = 'block';
 
-  // Cargar tiquetes del servidor para este usuario
-  loadTicketsFromServer();
+  if (isAdmin) {
+    // Admin: saltar selección de ciudad, mostrar panel directamente
+    document.getElementById('location-screen').classList.add('hidden');
+    document.getElementById('location-screen').style.display = 'none';
+    document.getElementById('main-app').style.display = 'block';
+
+    // Ocultar secciones de usuario normal
+    document.querySelector('.hero').style.display    = 'none';
+    document.querySelector('.filter-bar').style.display = 'none';
+    document.querySelector('main').style.display     = 'none';
+    const promoSec = document.getElementById('promociones-section');
+    if (promoSec) promoSec.style.display = 'none';
+
+    // Mostrar panel admin
+    document.getElementById('admin-panel').style.display = 'block';
+
+    // Cambiar nav-links a las del admin
+    const navLinks = document.querySelector('.nav-links');
+    if (navLinks) navLinks.innerHTML = `
+      <li><a href="#" onclick="loadAdminStats()" class="admin-nav-link">📊 Dashboard</a></li>
+    `;
+
+    // Ocultar "Mis Tiquetes" del nav (no aplica para admin)
+    const misTicketsBtn = document.querySelector('.btn-nav-outline');
+    if (misTicketsBtn) misTicketsBtn.style.display = 'none';
+
+    // También ocultar city-badge
+    const cityBadge = document.querySelector('.city-badge');
+    if (cityBadge) cityBadge.style.display = 'none';
+
+    loadAdminStats();
+  } else {
+    // Usuario normal: flujo normal
+    document.getElementById('location-screen').classList.remove('hidden');
+    document.getElementById('admin-panel').style.display = 'none';
+    loadTicketsFromServer();
+  }
 }
 
 function openLoginFromNav() {
@@ -1935,10 +2235,44 @@ document.addEventListener('click', e => {
 async function doLogout() {
   try { await fetch('/api/logout', {method:'POST'}); } catch(e) {}
 
+  const wasAdmin = currentUser && currentUser.role === 'admin';
   currentUser = null;
 
   // Resetear historial en memoria
   Object.keys(purchaseHistoryByAccount).forEach(k => delete purchaseHistoryByAccount[k]);
+
+  // ── Restaurar secciones que el admin había ocultado ──────────────────────────
+  if (wasAdmin) {
+    document.getElementById('admin-panel').style.display = 'none';
+    const hero = document.querySelector('.hero');
+    if (hero) hero.style.display = '';
+    const filterBar = document.querySelector('.filter-bar');
+    if (filterBar) filterBar.style.display = '';
+    const mainEl = document.querySelector('main');
+    if (mainEl) mainEl.style.display = '';
+    const promoSec = document.getElementById('promociones-section');
+    if (promoSec) promoSec.style.display = '';
+    // Restaurar nav-links
+    const navLinks = document.querySelector('.nav-links');
+    if (navLinks) navLinks.innerHTML = `
+      <li><a href="#cartelera">Cartelera</a></li>
+      <li><a href="#promociones-section">Promociones</a></li>
+      <li><a href="#" onclick="openMulticinesModal();return false;">Multicines</a></li>
+      <li><a href="#" onclick="openQRValidatorModal();return false;">🎟️ Código QR</a></li>`;
+    // Restaurar botón Mis Tiquetes y city badge
+    const misTiqBtn = document.querySelector('.btn-nav-outline');
+    if (misTiqBtn) misTiqBtn.style.display = '';
+    const cityBadge = document.querySelector('.city-badge');
+    if (cityBadge) cityBadge.style.display = '';
+    // Restaurar badge del navbar
+    const badge = document.getElementById('nav-user-badge');
+    if (badge) {
+      badge.style.borderColor = '';
+      badge.style.color = '';
+      const icon = badge.querySelector('span');
+      if (icon) icon.textContent = '👤';
+    }
+  }
 
   // Limpiar UI de usuario
   document.getElementById('user-dropdown').classList.remove('open');
@@ -2158,14 +2492,16 @@ async function restoreSession() {
     if (data.logged_in && data.user) {
       // Sesión activa en el servidor — restaurar sin pedir login
       onLoginSuccess(data.user);
-      // Restaurar ciudad guardada
-      const savedCity = localStorage.getItem('cx_city');
-      if (savedCity) {
-        document.getElementById('location-screen').classList.add('hidden');
-        document.getElementById('main-app').style.display = 'block';
-        document.getElementById('nav-city-label').textContent = savedCity.toUpperCase();
-        const heroCity = document.getElementById('hero-city-label');
-        if (heroCity) heroCity.textContent = savedCity;
+      // Si es admin, onLoginSuccess ya lo redirige al panel — no hace falta ciudad
+      if (data.user.role !== 'admin') {
+        const savedCity = localStorage.getItem('cx_city');
+        if (savedCity) {
+          document.getElementById('location-screen').classList.add('hidden');
+          document.getElementById('main-app').style.display = 'block';
+          document.getElementById('nav-city-label').textContent = savedCity.toUpperCase();
+          const heroCity = document.getElementById('hero-city-label');
+          if (heroCity) heroCity.textContent = savedCity;
+        }
       }
     }
     // Si no hay sesión activa, el login-screen ya está visible por defecto — no hacer nada
@@ -2231,6 +2567,111 @@ async function registerUser() {
     }
   } catch(e) {
     showRegError('Error de conexión. Intenta de nuevo.');
+  }
+}
+
+// ─── ADMIN DASHBOARD ──────────────────────────────────────────────────────────
+async function loadAdminStats() {
+  const lastUpdate = document.getElementById('admin-last-update');
+  if (lastUpdate) lastUpdate.textContent = 'Actualizando datos...';
+
+  try {
+    const res  = await fetch('/api/admin/stats');
+    const d    = await res.json();
+
+    // ── KPIs ────────────────────────────────────────────────────────────────────
+    const fmt = n => '$' + (n || 0).toLocaleString('es-CO');
+    document.getElementById('kpi-ingresos').textContent   = fmt(d.ingresos_total);
+    document.getElementById('kpi-tickets').textContent    = d.total_tickets  || 0;
+    document.getElementById('kpi-usuarios').textContent   = d.total_usuarios || 0;
+    document.getElementById('kpi-pendientes').textContent = d.pendientes     || 0;
+
+    // ── Ranking películas ────────────────────────────────────────────────────────
+    const maxT = d.ranking[0]?.tickets || 1;
+    document.getElementById('admin-ranking').innerHTML = d.ranking.length
+      ? d.ranking.map((r, i) => `
+          <div class="ranking-row">
+            <div class="rank-num ${i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-other'}">${i+1}</div>
+            <div class="rank-info">
+              <div class="rank-title">${r.pelicula}</div>
+              <div class="rank-bar-wrap">
+                <div class="rank-bar" style="width:${Math.round(r.tickets/maxT*100)}%"></div>
+              </div>
+            </div>
+            <div class="rank-stats">
+              <div class="rank-tickets">${r.tickets} tiquete${r.tickets!==1?'s':''}</div>
+              <div class="rank-money">${fmt(r.ingresos)}</div>
+            </div>
+          </div>`).join('')
+      : '<div style="color:var(--text-dim);text-align:center;padding:1.5rem;">Sin ventas aún</div>';
+
+    // ── Ingresos por película ────────────────────────────────────────────────────
+    document.getElementById('admin-ingresos-pelicula').innerHTML = d.ranking.length
+      ? d.ranking.map(r => `
+          <div class="ranking-row">
+            <div class="rank-info">
+              <div class="rank-title">${r.pelicula}</div>
+              <div class="rank-bar-wrap">
+                <div class="rank-bar" style="width:${Math.round(r.ingresos/(d.ingresos_total||1)*100)}%;background:linear-gradient(90deg,var(--neon-gold),#ff9500);"></div>
+              </div>
+            </div>
+            <div class="rank-stats">
+              <div class="rank-tickets">${r.tickets} tiq.</div>
+              <div class="rank-money" style="font-size:.85rem;">${fmt(r.ingresos)}</div>
+            </div>
+          </div>`).join('')
+      : '<div style="color:var(--text-dim);text-align:center;padding:1.5rem;">Sin datos</div>';
+
+    // ── Métodos de pago ──────────────────────────────────────────────────────────
+    const payIcons = {card:'💳',nequi:'📱',daviplata:'🏦',bancolombia:'🏛️',efectivo:'💵'};
+    const payNames = {card:'Tarjeta',nequi:'Nequi',daviplata:'Daviplata',bancolombia:'Bancolombia',efectivo:'Efectivo'};
+    const payEntries = Object.entries(d.por_pago || {}).sort((a,b) => b[1]-a[1]);
+    const totalPay = payEntries.reduce((s,[,v]) => s+v, 0) || 1;
+    document.getElementById('admin-pagos').innerHTML = payEntries.length
+      ? payEntries.map(([k,v]) => `
+          <div class="pay-row">
+            <div class="pay-icon">${payIcons[k] || '💵'}</div>
+            <div class="pay-name">${payNames[k] || k}</div>
+            <div style="flex:1;margin:0 .75rem;">
+              <div style="height:4px;background:var(--card-border);border-radius:99px;">
+                <div style="height:100%;width:${Math.round(v/totalPay*100)}%;background:var(--neon-green);border-radius:99px;"></div>
+              </div>
+            </div>
+            <div class="pay-count">${v} venta${v!==1?'s':''}</div>
+          </div>`).join('')
+      : '<div style="color:var(--text-dim);text-align:center;padding:1.5rem;">Sin ventas</div>';
+
+    // ── Combos / Snacks ──────────────────────────────────────────────────────────
+    document.getElementById('admin-snacks').innerHTML = d.snacks.length
+      ? d.snacks.map(s => `
+          <div class="snack-row">
+            <div class="snack-name">🍿 ${s.nombre}</div>
+            <div><span class="snack-qty">${s.cantidad}</span>
+              <span class="snack-unit"> ud${s.cantidad!==1?'s':''}</span>
+            </div>
+          </div>`).join('')
+      : '<div style="color:var(--text-dim);text-align:center;padding:1.5rem;">Sin combos vendidos aún</div>';
+
+    // ── Últimos tiquetes ─────────────────────────────────────────────────────────
+    document.getElementById('admin-recent-tbody').innerHTML = d.recientes.length
+      ? d.recientes.map(t => `
+          <tr>
+            <td style="font-family:'Orbitron',sans-serif;font-size:.6rem;color:var(--neon-blue);letter-spacing:1px;">${t.codigo}</td>
+            <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-main);">${t.pelicula}</td>
+            <td style="color:var(--text-dim);font-size:.75rem;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t.usuario}</td>
+            <td style="color:var(--text-dim);font-size:.75rem;">${t.asientos}</td>
+            <td style="color:var(--neon-gold);font-weight:700;">${fmt(t.total)}</td>
+            <td style="color:var(--text-dim);font-size:.75rem;">${t.pago}</td>
+            <td style="color:var(--text-dim);font-size:.72rem;">${t.fecha}</td>
+            <td><span class="status-pill status-${t.estado}">${t.estado.toUpperCase()}</span></td>
+          </tr>`).join('')
+      : '<tr><td colspan="8" style="text-align:center;color:var(--text-dim);padding:1.5rem;">Sin tiquetes registrados</td></tr>';
+
+    if (lastUpdate) lastUpdate.textContent = 'Última actualización: ' + new Date().toLocaleTimeString('es-CO');
+
+  } catch(e) {
+    console.error('Admin stats error:', e);
+    if (lastUpdate) lastUpdate.textContent = '⚠️ Error al cargar datos — intenta de nuevo';
   }
 }
 </script>
