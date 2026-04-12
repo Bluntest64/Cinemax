@@ -127,10 +127,10 @@ MOVIES_DATA = [
         "title":"Rascal Does Not Dream of a Dreaming Girl (2019)",
         "genre":"Anime", "duration":90,"rating":"PG-13",
         "age_limit":"",
-        "tags":"Drama, Romance, Fantasía sobrenatural, profunda, conmovedora.",
+        "tags":"Drama,Romance,Fantasía_sobrenatural,profunda,conmovedora.",
         "director":"Sōichi Masui",
         "language":"Subtitulada",
-        "description":" La historia aborda temas de maduración, la pérdida y la aceptación, centrándose en el primer amor de Sakuta, Shoko Makinohara, y las complicaciones temporales que trae a la relación con Mai.",
+        "description":"La historia aborda temas de maduración, la pérdida y la aceptación, centrándose en el primer amor de Sakuta, Shoko Makinohara, y las complicaciones temporales que trae a la relación con Mai.",
         "poster_url":"static\posters\RascalDoesNotDramofaDreamingGirl(2019).jpg","display_order":"-1",
     },
     {
