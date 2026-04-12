@@ -286,54 +286,121 @@ LOCATION_DATA = {
 MOVIES_DATA = [
     # ── PELÍCULAS EXISTENTES (títulos corregidos) ──────────────────────────────
     {
-        "title":"Mulan",
-        "genre":"Acción / Aventura","duration":115,"rating":"PG-13",
-        "age_limit":13,"age_label":"+13",
-        "tags":"Acción,Aventura,Drama,Histórico,Familiar",
-        "director":"Niki Caro","cast_list":"Yifei Liu, Donnie Yen, Jet Li",
-        "language":"Subtitulada / Doblada",
-        "description":"Una joven valiente se disfraza de hombre para luchar en el ejército en lugar de su anciano padre. Basada en la leyenda china de Hua Mulan.",
-        "poster_url":"/static/posters/mulan.jpg","display_order":7
+        "title": "TÍTULO DE LA PELÍCULA AQUÍ",
+        "genre": "Género / Subgénero",
+        "duration": 120,
+        "rating": "PG-13",
+        "age_limit": 13,
+        "age_label": "+13",
+        "tags": "Etiqueta1,Etiqueta2,Etiqueta3",
+        "director": "Nombre del Director",
+        "cast_list": "Actor 1, Actor 2, Actor 3",
+        "language": "Subtitulada / Doblada",
+        "description": "Sinopsis de la película.",
+        "poster_url": "/static/posters/ARCHIVO.jpg",
+        "display_order": -8
     },
     {
-        "title":"Titanic",
-        "genre":"Romance / Drama","duration":195,"rating":"PG-13",
-        "age_limit":13,"age_label":"+13",
-        "tags":"Romance,Drama,Histórico,Catástrofe,Clásico",
-        "director":"James Cameron","cast_list":"Leonardo DiCaprio, Kate Winslet, Billy Zane",
-        "language":"Subtitulada / Doblada",
-        "description":"Una historia de amor que trasciende clases sociales a bordo del famoso transatlántico. Basada en el hundimiento del RMS Titanic en 1912.",
-        "poster_url":"/static/posters/titanic.jpg","display_order":8
+        "title": "TÍTULO DE LA PELÍCULA AQUÍ",
+        "genre": "Género / Subgénero",
+        "duration": 120,
+        "rating": "PG-13",
+        "age_limit": 13,
+        "age_label": "+13",
+        "tags": "Etiqueta1,Etiqueta2,Etiqueta3",
+        "director": "Nombre del Director",
+        "cast_list": "Actor 1, Actor 2, Actor 3",
+        "language": "Subtitulada / Doblada",
+        "description": "Sinopsis de la película.",
+        "poster_url": "/static/posters/ARCHIVO.jpg",
+        "display_order": -7
     },
     {
-        "title":"Doctor Strange en el Multiverso de la Locura",
-        "genre":"Acción / Ciencia Ficción",
-        "duration":126,"rating":"PG-13","age_limit":13,"age_label":"+13",
-        "tags":"Acción,Superhéroes,Ciencia Ficción,Terror,Marvel",
-        "director":"Sam Raimi","cast_list":"Benedict Cumberbatch, Elizabeth Olsen, Rachel McAdams",
-        "language":"Subtitulada / Doblada",
-        "description":"Doctor Strange viaja a través del multiverso enfrentando versiones alternativas de sí mismo y peligros inimaginables junto a América Chávez.",
-        "poster_url":"/static/posters/drstrange.jpg","display_order":9
+        "title": "TÍTULO DE LA PELÍCULA AQUÍ",
+        "genre": "Género / Subgénero",
+        "duration": 120,
+        "rating": "PG-13",
+        "age_limit": 13,
+        "age_label": "+13",
+        "tags": "Etiqueta1,Etiqueta2,Etiqueta3",
+        "director": "Nombre del Director",
+        "cast_list": "Actor 1, Actor 2, Actor 3",
+        "language": "Subtitulada / Doblada",
+        "description": "Sinopsis de la película.",
+        "poster_url": "/static/posters/ARCHIVO.jpg",
+        "display_order": -6
     },
     {
-        "title":"Thor: Amor y Trueno",
-        "genre":"Acción / Superhéroes",
-        "duration":119,"rating":"PG-13","age_limit":13,"age_label":"+13",
-        "tags":"Acción,Superhéroes,Comedia,Marvel,Aventura",
-        "director":"Taika Waititi","cast_list":"Chris Hemsworth, Natalie Portman, Christian Bale",
-        "language":"Subtitulada / Doblada",
-        "description":"Thor emprende un viaje diferente a todo lo que ha enfrentado: la búsqueda de la paz interior. Pero su retiro es interrumpido por un villain galáctico.",
-        "poster_url":"/static/posters/thor.jpg","display_order":10
+        "title": "TÍTULO DE LA PELÍCULA AQUÍ",
+        "genre": "Género / Subgénero",
+        "duration": 120,
+        "rating": "PG-13",
+        "age_limit": 13,
+        "age_label": "+13",
+        "tags": "Etiqueta1,Etiqueta2,Etiqueta3",
+        "director": "Nombre del Director",
+        "cast_list": "Actor 1, Actor 2, Actor 3",
+        "language": "Subtitulada / Doblada",
+        "description": "Sinopsis de la película.",
+        "poster_url": "/static/posters/ARCHIVO.jpg",
+        "display_order": -5
     },
     {
-        "title":"Aladdin",
-        "genre":"Fantasía / Musical",
-        "duration":128,"rating":"PG","age_limit":0,"age_label":"ATP",
-        "tags":"Fantasía,Musical,Aventura,Familiar,Romance",
-        "director":"Guy Ritchie","cast_list":"Will Smith, Mena Massoud, Naomi Scott",
-        "language":"Subtitulada / Doblada",
-        "description":"Un joven de la calle encuentra una lámpara mágica que libera a un genio con poderes increíbles, cambiando su destino para siempre en Agrabah.",
-        "poster_url":"/static/posters/aladdin.jpg","display_order":11
+        "title": "TÍTULO DE LA PELÍCULA AQUÍ",
+        "genre": "Género / Subgénero",
+        "duration": 120,
+        "rating": "PG-13",
+        "age_limit": 13,
+        "age_label": "+13",
+        "tags": "Etiqueta1,Etiqueta2,Etiqueta3",
+        "director": "Nombre del Director",
+        "cast_list": "Actor 1, Actor 2, Actor 3",
+        "language": "Subtitulada / Doblada",
+        "description": "Sinopsis de la película.",
+        "poster_url": "/static/posters/ARCHIVO.jpg",
+        "display_order": -4
+    },
+    {
+        "title": "TÍTULO DE LA PELÍCULA AQUÍ",
+        "genre": "Género / Subgénero",
+        "duration": 120,
+        "rating": "PG-13",
+        "age_limit": 13,
+        "age_label": "+13",
+        "tags": "Etiqueta1,Etiqueta2,Etiqueta3",
+        "director": "Nombre del Director",
+        "cast_list": "Actor 1, Actor 2, Actor 3",
+        "language": "Subtitulada / Doblada",
+        "description": "Sinopsis de la película.",
+        "poster_url": "/static/posters/ARCHIVO.jpg",
+        "display_order": -3
+    },
+    {
+        "title": "TÍTULO DE LA PELÍCULA AQUÍ",       # ← cambia esto
+        "genre": "Género / Subgénero",                # ← ej: "Acción / Aventura"
+        "duration": 120,                              # ← minutos (número)
+        "rating": "PG-13",                            # ← PG / PG-13 / R / NR / G
+        "age_limit": 13,                              # ← 0 / 7 / 13 / 16 / 18
+        "age_label": "+13",                           # ← "ATP" / "+7" / "+13" / "+16" / "+18"
+        "tags": "Etiqueta1,Etiqueta2,Etiqueta3",      # ← sin espacios tras comas
+        "director": "Nombre del Director",            # ← director
+        "cast_list": "Actor 1, Actor 2, Actor 3",     # ← actores principales
+        "language": "Subtitulada / Doblada",          # ← idioma
+        "description": "Sinopsis de la película.",    # ← descripción corta
+        "poster_url": "/static/posters/ARCHIVO.jpg",  # ← nombre del jpg en static/posters/
+        "display_order": -2                           # ← no toques esto
+    },
+    {
+        "title": "Rascal Does Not Dream of a Dreaming Girl",
+        "genre": "Romance / Drama",
+        "duration": 90, "rating": "PG-13", "age_limit": 13, "age_label": "+13",
+        "tags": "Romance,Drama,Anime,Adolescentes,Japón",
+        "director": "Souichi Masui",
+        "cast_list": "Kaito Ishikawa, Asami Seto, Atsumi Tanezaki",
+        "language": "Subtitulada",
+        "description": "Sakuta Azusagawa, quien conoce la existencia del Síndrome de la Pubertad, se enfrenta a un nuevo caso: una chica que vive en su interior y en la realidad al mismo tiempo.",
+        "poster_url": "/static/posters/rascal.jpg",
+        "display_order": -1
     },
     {
         "title":"Black Panther: Wakanda Forever",
@@ -395,6 +462,57 @@ MOVIES_DATA = [
         "description":"Po debe encontrar y entrenar a un nuevo Guerrero Dragón, mientras enfrenta a su villana más astuta: una camaleona con el poder de copiar a cualquier maestro.",
         "poster_url":"/static/posters/kungfupanda.jpg","display_order":6
     },
+    {
+        "title":"Mulan",
+        "genre":"Acción / Aventura","duration":115,"rating":"PG-13",
+        "age_limit":13,"age_label":"+13",
+        "tags":"Acción,Aventura,Drama,Histórico,Familiar",
+        "director":"Niki Caro","cast_list":"Yifei Liu, Donnie Yen, Jet Li",
+        "language":"Subtitulada / Doblada",
+        "description":"Una joven valiente se disfraza de hombre para luchar en el ejército en lugar de su anciano padre. Basada en la leyenda china de Hua Mulan.",
+        "poster_url":"/static/posters/mulan.jpg","display_order":7
+    },
+    {
+        "title":"Titanic",
+        "genre":"Romance / Drama","duration":195,"rating":"PG-13",
+        "age_limit":13,"age_label":"+13",
+        "tags":"Romance,Drama,Histórico,Catástrofe,Clásico",
+        "director":"James Cameron","cast_list":"Leonardo DiCaprio, Kate Winslet, Billy Zane",
+        "language":"Subtitulada / Doblada",
+        "description":"Una historia de amor que trasciende clases sociales a bordo del famoso transatlántico. Basada en el hundimiento del RMS Titanic en 1912.",
+        "poster_url":"/static/posters/titanic.jpg","display_order":8
+    },
+    {
+        "title":"Doctor Strange en el Multiverso de la Locura",
+        "genre":"Acción / Ciencia Ficción",
+        "duration":126,"rating":"PG-13","age_limit":13,"age_label":"+13",
+        "tags":"Acción,Superhéroes,Ciencia Ficción,Terror,Marvel",
+        "director":"Sam Raimi","cast_list":"Benedict Cumberbatch, Elizabeth Olsen, Rachel McAdams",
+        "language":"Subtitulada / Doblada",
+        "description":"Doctor Strange viaja a través del multiverso enfrentando versiones alternativas de sí mismo y peligros inimaginables junto a América Chávez.",
+        "poster_url":"/static/posters/drstrange.jpg","display_order":9
+    },
+    {
+        "title":"Thor: Amor y Trueno",
+        "genre":"Acción / Superhéroes",
+        "duration":119,"rating":"PG-13","age_limit":13,"age_label":"+13",
+        "tags":"Acción,Superhéroes,Comedia,Marvel,Aventura",
+        "director":"Taika Waititi","cast_list":"Chris Hemsworth, Natalie Portman, Christian Bale",
+        "language":"Subtitulada / Doblada",
+        "description":"Thor emprende un viaje diferente a todo lo que ha enfrentado: la búsqueda de la paz interior. Pero su retiro es interrumpido por un villain galáctico.",
+        "poster_url":"/static/posters/thor.jpg","display_order":10
+    },
+    {
+        "title":"Aladdin",
+        "genre":"Fantasía / Musical",
+        "duration":128,"rating":"PG","age_limit":0,"age_label":"ATP",
+        "tags":"Fantasía,Musical,Aventura,Familiar,Romance",
+        "director":"Guy Ritchie","cast_list":"Will Smith, Mena Massoud, Naomi Scott",
+        "language":"Subtitulada / Doblada",
+        "description":"Un joven de la calle encuentra una lámpara mágica que libera a un genio con poderes increíbles, cambiando su destino para siempre en Agrabah.",
+        "poster_url":"/static/posters/aladdin.jpg","display_order":11
+    },
+
     # ── NUEVAS PELÍCULAS ───────────────────────────────────────────────────────
     {
         "title":"Annabelle",
@@ -525,7 +643,7 @@ MOVIES_DATA = [
         "language":"Subtitulada / Doblada",
         "description":"Cuatro inadaptados del mundo real son arrastrados al Overworld de Minecraft, donde deben construir, explorar y sobrevivir para encontrar el camino a casa.",
         "poster_url":"/static/posters/minecraft.jpg","display_order":24
-    },
+    }
 ]
 
 SHOWTIMES = ["2:00 PM","4:20 PM","6:40 PM","9:10 PM","9:30 PM"]
@@ -550,10 +668,11 @@ def seed_db():
             db.session.rollback()
             print(f"[SEED] Error con película '{md.get('title')}': {e}")
 
-    # ── Horarios: solo si no hay ninguno aún ────────────────────────────────────
-    if Showtime.query.count() == 0:
-        for movie in Movie.query.all():
-            try:
+    # ── Horarios: verificar por película, no globalmente ──────────────────────
+    # Así las películas nuevas que se agreguen después también reciben horarios.
+    for movie in Movie.query.all():
+        try:
+            if Showtime.query.filter_by(movie_id=movie.id).count() == 0:
                 for t in random.sample(SHOWTIMES, random.randint(2, 4)):
                     db.session.add(Showtime(
                         movie_id=movie.id,
@@ -562,9 +681,9 @@ def seed_db():
                         format_type=random.choice(FORMATS)
                     ))
                 db.session.commit()
-            except Exception as e:
-                db.session.rollback()
-                print(f"[SEED] Error con horario para '{movie.title}': {e}")
+        except Exception as e:
+            db.session.rollback()
+            print(f"[SEED] Error con horario para '{movie.title}': {e}")
 
     # ── Cuentas del equipo ───────────────────────────────────────────────────────
     SEED_ACCOUNTS = [
