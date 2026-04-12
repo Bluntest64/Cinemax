@@ -346,7 +346,7 @@ MOVIES_DATA = [
         "cast_list": "Saki Fujita, Ruriko Noguchi, Tomori Kusunoki",
         "language": "Subtitulada",
         "description": "En un mundo donde la música conecta sentimientos, una versión de Hatsune Miku aparece incapaz de cantar, perdiendo aquello que le daba sentido a su existencia. Mientras distintos jóvenes atraviesan sus propias luchas personales, sus emociones comienzan a entrelazarse con esta misteriosa Miku. A través de la amistad, la creatividad y el poder de la música, deberán encontrar la forma de devolverle su voz y descubrir que incluso en los momentos de silencio, los sentimientos pueden resonar con más fuerza que nunca.",
-        "poster_url": "cinemax/static/posters/MikuNoPuedeCantar.jpg",
+        "poster_url": "/static/posters/MikuNoPuedeCantar.jpg",
         "display_order": -5
     },
     {
