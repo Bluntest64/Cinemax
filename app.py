@@ -357,7 +357,7 @@ MOVIES_DATA = [
         "cast_list": "Xenophanes/Sonic.EXE: MarStarBro, Tails(voz y gritos): Saster, Knuckles : Saster, Boyfriend: Kawai Sprite",
         "language": "Subtitulada / Doblada",
         "description": "Boyfriend y Girlfriend se ven arrastrados a una dimensión oscura dominada por entidades corruptas inspiradas en el universo de Sonic. A medida que avanzan, deben enfrentarse a múltiples adversarios en intensos duelos musicales donde cada canción se vuelve más peligrosa que la anterior. Con la realidad distorsionándose y el tiempo desmoronándose, la única forma de sobrevivir es mantener el ritmo perfecto. En esta batalla desesperada, la música se convierte en la última defensa contra una amenaza que busca atraparlos para siempre.",
-        "poster_url": "/static/posters/ARCHIVO.jpg",
+        "poster_url": "/static/posters/FNFTripleTroble.jpg",
         "display_order": -4
     },
     {
