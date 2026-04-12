@@ -126,7 +126,7 @@ MOVIES_DATA = [
     {
         "title":"Rascal Does Not Dream of a Dreaming Girl (2019)",
         "genre":"Anime", "duration":90,"rating":"PG-13",
-        "age_limit":"13",
+        "age_limit":"13","age_label":"+13",
         "tags":"Drama,Romance,Fantasía_sobrenatural,profunda,conmovedora.",
         "director":"Sōichi Masui",
         "language":"Subtitulada",
