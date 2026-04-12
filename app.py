@@ -131,7 +131,7 @@ MOVIES_DATA = [
         "director":"Sōichi Masui",
         "language":"Subtitulada",
         "description":" La historia aborda temas de maduración, la pérdida y la aceptación, centrándose en el primer amor de Sakuta, Shoko Makinohara, y las complicaciones temporales que trae a la relación con Mai.",
-        "poster_url":"static\posters\RascalDoesNotDramofaDreamingGirl(2019).jpg","display_order":"1",
+        "poster_url":"static\posters\RascalDoesNotDramofaDreamingGirl(2019).jpg","display_order":"-1",
     },
     {
         "title":"Mulan",
