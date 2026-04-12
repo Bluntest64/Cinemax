@@ -336,11 +336,8 @@ MOVIES_DATA = [
     },
     {
         "title": "Miku No Puede Cantar",
-        "genre": "Anime / Musical / Drama / Fantasías",
-        "duration": 105,
-        "rating": "PG",
-        "age_limit": 7,
-        "age_label": "+7",
+        "genre": "Anime / Musical / Drama / Fantasías", "duration": 105,
+        "rating": "PG", "age_limit": 7, "age_label": "+7",
         "tags": "Musical,Drama,Fantasía,Emotiva,Idols,Virtual,Superación,Juvenil",
         "director": "Hiroyuki Hata",
         "cast_list": "Saki Fujita, Ruriko Noguchi, Tomori Kusunoki",
@@ -351,11 +348,8 @@ MOVIES_DATA = [
     },
     {
         "title": "Friday Night Funkin Triple Trouble",
-        "genre": "accion / terror",
-        "duration": 60,
-        "rating": "PG-13",
-        "age_limit": 13,
-        "age_label": "+13",
+        "genre": "accion / terror", "duration": 60,
+        "rating": "PG-13", "age_limit": 13, "age_label": "+13",
         "tags": "Musical,Ritmo,Crossover,Acción",
         "director": "RightBurstUltrar",
         "cast_list": "Xenophanes/Sonic.EXE: MarStarBro, Tails(voz y gritos): Saster, Knuckles : Saster, Boyfriend: Kawai Sprite",
@@ -1143,38 +1137,26 @@ def run_migrations():
     except Exception as e:
         print(f"[MIGRATION] Error de conexión: {e}")
 
-
-def dedup_rascal():
-    """
-    Elimina entradas duplicadas de Rascal en la BD.
-    Conserva la que tiene poster_url='/static/posters/RascalDoesNotDramofaDreamingGirl(2019).jpg'
-    y elimina todas las demás variantes sin imagen o con título diferente.
-    """
-    # Buscar todas las películas cuyo título contenga 'Rascal' y 'Dream'
-    rascals = Movie.query.filter(
-        Movie.title.ilike('%rascal%does%not%dream%dreaming%')
-    ).all()
-
-    if len(rascals) <= 1:
-        # Si hay 0 o 1, no hay duplicado de la primera película
-        pass
-    else:
-        # Ordenar: primero los que tienen poster_url correcto
-        rascals.sort(key=lambda m: (
-            0 if (m.poster_url and 'RascalDoesNotDramofaDreamingGirl' in m.poster_url) else 1,
-            m.id
-        ))
-        keep = rascals[0]  # el primero es el bueno
-        for dup in rascals[1:]:
-            try:
-                # Eliminar horarios del duplicado
-                Showtime.query.filter_by(movie_id=dup.id).delete()
-                db.session.delete(dup)
+def cleanup_placeholders():
+    """Elimina películas placeholder que quedaron en la BD sin datos reales."""
+    placeholders = [
+        'TÍTULO DE LA PELÍCULA AQUÍ',
+        'Título de la Película Aquí',
+        'titulo de la pelicula aqui',
+    ]
+    for titulo in placeholders:
+        try:
+            movie = Movie.query.filter(
+                Movie.title.ilike(titulo)
+            ).first()
+            if movie:
+                Showtime.query.filter_by(movie_id=movie.id).delete()
+                db.session.delete(movie)
                 db.session.commit()
-                print(f"[DEDUP] Eliminado duplicado Rascal id={dup.id} title='{dup.title}'")
-            except Exception as e:
-                db.session.rollback()
-                print(f"[DEDUP] Error eliminando id={dup.id}: {e}")
+                print(f"[CLEANUP] Eliminada placeholder: '{movie.title}'")
+        except Exception as e:
+            db.session.rollback()
+            print(f"[CLEANUP] Error: {e}")
 
     # También eliminar entradas sin imagen ni título exacto (typos en el título)
     # que puedan haber quedado de inserciones manuales
@@ -1196,14 +1178,14 @@ def dedup_rascal():
 # ─── BOOT ──────────────────────────────────────────────────────────────────────
 with app.app_context():
     run_migrations()   # ← PRIMERO: asegurar que todas las columnas existan
-    db.create_all()    # ← crea tablas nuevas si no existen
-    dedup_rascal()     # ← limpia duplicados de Rascal
+    db.create_all()    # ← crea tablas nuevas si no existen    
+    cleanup_placeholders() # ← limpia duplicados
     seed_db()          # ← inserta/actualiza películas y cuentas
 
 if __name__ == '__main__':
     with app.app_context():
         run_migrations()
         db.create_all()
-        dedup_rascal()
+        cleanup_placeholders()
         seed_db()
     app.run(debug=False, port=5000)
