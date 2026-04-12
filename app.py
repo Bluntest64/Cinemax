@@ -1,7 +1,10 @@
-from flask import Flask, render_template, request, jsonify, session
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+import smtplib, ssl, threading
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 # Nombres de días y meses en español para formatear fechas
 _DIAS_ES   = ['lunes','martes','miércoles','jueves','viernes','sábado','domingo']
@@ -15,7 +18,165 @@ def fecha_es(dt):
     dia_semana = _DIAS_ES[dt.weekday()]
     mes        = _MESES_ES[dt.month - 1]
     return f"{dia_semana}, {dt.day} de {mes} de {dt.year}"
-import os, uuid, random
+import os, uuid, random, hashlib
+
+# ─── CONFIGURACIÓN DE EMAIL ────────────────────────────────────────────────────
+MAIL_USER     = os.environ.get('MAIL_USER', '')      # tu@gmail.com
+MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', '')  # App Password de Google
+APP_URL       = os.environ.get('APP_URL', 'http://localhost:5000')  # URL pública del sitio
+
+def _qr_svg_inline(code: str, size: int = 200) -> str:
+    """Genera un SVG de QR pseudoaleatorio determinista para incluir en el email."""
+    CELL = 7
+    N    = 25
+    # Hash determinista del código
+    h = int(hashlib.sha256(code.encode()).hexdigest(), 16)
+    bits = []
+    seed = h
+    for _ in range(N * N):
+        seed = (seed * 6364136223846793005 + 1442695040888963407) & 0xFFFFFFFFFFFFFFFF
+        bits.append((seed >> 33) & 1)
+    # Forzar esquinas de finder patterns
+    for r in range(7):
+        for c in range(7):
+            bits[r*N+c] = 1
+            bits[r*N+(N-1-c)] = 1
+            bits[(N-1-r)*N+c] = 1
+    total = CELL * N + 16
+    rects = []
+    for r in range(N):
+        for c in range(N):
+            if bits[r*N+c]:
+                x = c * CELL + 8
+                y = r * CELL + 8
+                rects.append(f'<rect x="{x}" y="{y}" width="{CELL}" height="{CELL}" fill="#0a0d14"/>')
+    svg = (f'<svg xmlns="http://www.w3.org/2000/svg" width="{total}" height="{total}">'
+           f'<rect width="{total}" height="{total}" fill="white" rx="8"/>'
+           + ''.join(rects) + '</svg>')
+    return svg
+
+def _send_email_async(to_email: str, subject: str, html_body: str):
+    """Envía el email en un hilo aparte para no bloquear la respuesta HTTP."""
+    if not MAIL_USER or not MAIL_PASSWORD:
+        print(f"[EMAIL] MAIL_USER/MAIL_PASSWORD no configurados — email NO enviado a {to_email}")
+        return
+    def _send():
+        try:
+            msg = MIMEMultipart('alternative')
+            msg['Subject'] = subject
+            msg['From']    = f'CINEMAX Experience <{MAIL_USER}>'
+            msg['To']      = to_email
+            msg.attach(MIMEText(html_body, 'html', 'utf-8'))
+            ctx = ssl.create_default_context()
+            with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=ctx) as s:
+                s.login(MAIL_USER, MAIL_PASSWORD)
+                s.sendmail(MAIL_USER, to_email, msg.as_string())
+            print(f"[EMAIL] Enviado a {to_email}: {subject}")
+        except Exception as e:
+            print(f"[EMAIL] ERROR enviando a {to_email}: {e}")
+    threading.Thread(target=_send, daemon=True).start()
+
+def _build_confirmation_email(user_name: str, ticket_code: str, confirm_url: str,
+                               movie_title: str, show_time: str, seats: str,
+                               total: int, combo: str, date_str: str) -> str:
+    """HTML del email de confirmación con diseño cinematográfico."""
+    qr_svg    = _qr_svg_inline(ticket_code)
+    total_fmt = f"${total:,.0f}".replace(',', '.')
+    combo_row = f"""
+        <tr>
+          <td style="padding:8px 0;border-bottom:1px solid #1a1f2e;color:#7986cb;font-size:13px;">🍿 Combos</td>
+          <td style="padding:8px 0;border-bottom:1px solid #1a1f2e;color:#e8eaf6;font-size:13px;text-align:right;">{combo}</td>
+        </tr>""" if combo and combo != 'Sin combos' else ''
+
+    return f"""<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#030508;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#030508;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="560" cellpadding="0" cellspacing="0" style="background:#0a0d14;border:1px solid #1a1f2e;border-radius:16px;overflow:hidden;max-width:560px;width:100%;">
+
+        <!-- Header -->
+        <tr>
+          <td style="background:linear-gradient(135deg,#0d1117,#1a0a20);padding:32px;text-align:center;border-bottom:1px solid #1a1f2e;">
+            <div style="font-size:32px;font-weight:900;letter-spacing:6px;background:linear-gradient(135deg,#bf00ff,#00d4ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;color:#bf00ff;">CINEMAX</div>
+            <div style="font-size:9px;letter-spacing:5px;color:#7986cb;margin-top:4px;">EXPERIENCE</div>
+            <div style="margin-top:20px;font-size:22px;font-weight:700;letter-spacing:2px;color:#ffffff;">🎬 CONFIRMA TU COMPRA</div>
+            <div style="font-size:13px;color:#7986cb;margin-top:6px;">Hola, <strong style="color:#e8eaf6;">{user_name}</strong> — revisa los detalles y confirma</div>
+          </td>
+        </tr>
+
+        <!-- Ticket details -->
+        <tr>
+          <td style="padding:28px 32px;">
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td colspan="2" style="padding-bottom:16px;">
+                  <div style="font-size:20px;font-weight:700;color:#ffffff;letter-spacing:1px;">{movie_title}</div>
+                  <div style="font-size:11px;letter-spacing:3px;color:#bf00ff;margin-top:4px;text-transform:uppercase;">Código: {ticket_code}</div>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:8px 0;border-bottom:1px solid #1a1f2e;color:#7986cb;font-size:13px;">📅 Fecha</td>
+                <td style="padding:8px 0;border-bottom:1px solid #1a1f2e;color:#e8eaf6;font-size:13px;text-align:right;">{date_str}</td>
+              </tr>
+              <tr>
+                <td style="padding:8px 0;border-bottom:1px solid #1a1f2e;color:#7986cb;font-size:13px;">🕐 Función</td>
+                <td style="padding:8px 0;border-bottom:1px solid #1a1f2e;color:#e8eaf6;font-size:13px;text-align:right;">{show_time}</td>
+              </tr>
+              <tr>
+                <td style="padding:8px 0;border-bottom:1px solid #1a1f2e;color:#7986cb;font-size:13px;">💺 Asientos</td>
+                <td style="padding:8px 0;border-bottom:1px solid #1a1f2e;color:#e8eaf6;font-size:13px;text-align:right;">{seats}</td>
+              </tr>
+              {combo_row}
+              <tr>
+                <td style="padding:12px 0;color:#7986cb;font-size:14px;font-weight:700;">💰 Total</td>
+                <td style="padding:12px 0;color:#ffd700;font-size:20px;font-weight:700;text-align:right;">{total_fmt} COP</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- QR -->
+        <tr>
+          <td style="padding:0 32px 24px;text-align:center;">
+            <div style="background:white;display:inline-block;padding:12px;border-radius:12px;">
+              {qr_svg}
+            </div>
+            <div style="font-size:11px;letter-spacing:4px;color:#bf00ff;margin-top:12px;font-weight:700;">{ticket_code}</div>
+            <div style="font-size:11px;color:#7986cb;margin-top:4px;">Presenta este código en taquilla</div>
+          </td>
+        </tr>
+
+        <!-- CTA Button -->
+        <tr>
+          <td style="padding:0 32px 32px;text-align:center;">
+            <div style="background:#1a1f2e;border:1px solid #2a2f3e;border-radius:10px;padding:16px 24px;margin-bottom:20px;">
+              <div style="font-size:12px;color:#7986cb;margin-bottom:8px;">⚠️ Tu tiquete aún NO está confirmado</div>
+              <div style="font-size:11px;color:#5a6080;">Haz clic en el botón para confirmar tu compra y activar tu entrada</div>
+            </div>
+            <a href="{confirm_url}"
+               style="display:inline-block;padding:16px 40px;background:linear-gradient(135deg,#bf00ff,#00d4ff);border-radius:8px;color:#ffffff;font-size:16px;font-weight:700;letter-spacing:3px;text-decoration:none;text-transform:uppercase;">
+              ✅ CONFIRMAR MI COMPRA
+            </a>
+            <div style="font-size:11px;color:#5a6080;margin-top:16px;">Este enlace expira en 24 horas</div>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td style="background:#060810;padding:20px 32px;border-top:1px solid #1a1f2e;text-align:center;">
+            <div style="font-size:11px;color:#3a3f50;letter-spacing:1px;">CINEMAX EXPERIENCE · Sistema de gestión de cine</div>
+            <div style="font-size:10px;color:#2a2f40;margin-top:4px;">Si no solicitaste esta compra, ignora este correo.</div>
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>"""
+
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'cinemax-secret-change-in-prod')
@@ -98,7 +259,8 @@ class Ticket(db.Model):
     total          = db.Column(db.Integer, default=0)
     payment_method = db.Column(db.String(30))
     combo_detail   = db.Column(db.Text)
-    status         = db.Column(db.String(20), default='activo')
+    status         = db.Column(db.String(20), default='pendiente')  # pendiente / activo / usado / cancelado
+    confirm_token  = db.Column(db.String(80), unique=True, nullable=True)
     purchased_at   = db.Column(db.DateTime, default=datetime.utcnow)
 
 # ─── LOCATION DATA ─────────────────────────────────────────────────────────────
@@ -124,16 +286,6 @@ LOCATION_DATA = {
 MOVIES_DATA = [
     # ── PELÍCULAS EXISTENTES (títulos corregidos) ──────────────────────────────
     {
-        "title":"Rascal Does Not Dream of a Dreaming Girl (2019)",
-        "genre":"Anime", "duration":90,"rating":"PG-13",
-        "age_limit":"13","age_label":"+13",
-        "tags":"Drama,Romance,Fantasía_sobrenatural,profunda,conmovedora.",
-        "director":"Sōichi Masui",
-        "language":"Subtitulada",
-        "description":"La historia aborda temas de maduración, la pérdida y la aceptación, centrándose en el primer amor de Sakuta, Shoko Makinohara, y las complicaciones temporales que trae a la relación con Mai.",
-        "poster_url":"/static/posters/RascalDoesNotDramofaDreamingGirl(2019).jpg","display_order":-1,
-    },
-    {
         "title":"Mulan",
         "genre":"Acción / Aventura","duration":115,"rating":"PG-13",
         "age_limit":13,"age_label":"+13",
@@ -151,7 +303,7 @@ MOVIES_DATA = [
         "director":"James Cameron","cast_list":"Leonardo DiCaprio, Kate Winslet, Billy Zane",
         "language":"Subtitulada / Doblada",
         "description":"Una historia de amor que trasciende clases sociales a bordo del famoso transatlántico. Basada en el hundimiento del RMS Titanic en 1912.",
-        "poster_url":"/static/posters/titanic.jpg","display_order":-1
+        "poster_url":"/static/posters/titanic.jpg","display_order":8
     },
     {
         "title":"Doctor Strange en el Multiverso de la Locura",
@@ -383,33 +535,60 @@ PRICES    = {"normal":18000,"vip":28000,"ultra":38000}
 
 
 def seed_db():
-    existing = {m.title: m for m in Movie.query.all()}
+    # ── Películas: upsert seguro película por película ──────────────────────────
     for md in MOVIES_DATA:
-        if md['title'] in existing:
-            for k,v in md.items(): setattr(existing[md['title']], k, v)
-        else:
-            db.session.add(Movie(**md))
-    db.session.flush()
+        try:
+            existing = Movie.query.filter_by(title=md['title']).first()
+            if existing:
+                # Actualizar campos si la película ya existe
+                for k, v in md.items():
+                    setattr(existing, k, v)
+            else:
+                db.session.add(Movie(**md))
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            print(f"[SEED] Error con película '{md.get('title')}': {e}")
+
+    # ── Horarios: solo si no hay ninguno aún ────────────────────────────────────
     if Showtime.query.count() == 0:
         for movie in Movie.query.all():
-            for t in random.sample(SHOWTIMES, random.randint(2,4)):
-                db.session.add(Showtime(movie_id=movie.id, hall=random.choice(HALLS),
-                                        show_time=t, format_type=random.choice(FORMATS)))
-    # Seed hardcoded accounts if they don't exist
+            try:
+                for t in random.sample(SHOWTIMES, random.randint(2, 4)):
+                    db.session.add(Showtime(
+                        movie_id=movie.id,
+                        hall=random.choice(HALLS),
+                        show_time=t,
+                        format_type=random.choice(FORMATS)
+                    ))
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                print(f"[SEED] Error con horario para '{movie.title}': {e}")
+
+    # ── Cuentas del equipo ───────────────────────────────────────────────────────
     SEED_ACCOUNTS = [
-        {'email':'jesusbarriosrodrig6@gmail.com',      'pass':'123456',           'name':'Jesús Barrios',  'role':'👑 Cuenta Principal','color':'#bf00ff','initials':'JB'},
-        {'email':'eilinsolano0123@gmail.com',           'pass':'987654321',        'name':'Eilin Solano',   'role':'Usuario','color':'#00d4ff','initials':'ES'},
-        {'email':'matiasserrato156@gmail.com',          'pass':'matias serrato 123','name':'Matías Serrato','role':'Usuario','color':'#ff006e','initials':'MS'},
-        {'email':'123kevindavidgomezposada@gmail.com',  'pass':'123456789',        'name':'Kevin Gómez',    'role':'Usuario','color':'#00ff9f','initials':'KG'},
+        {'email':'jesusbarriosrodrig6@gmail.com',     'pass':'123456',
+         'name':'Jesús Barrios',  'role':'👑 Cuenta Principal','color':'#bf00ff','initials':'JB'},
+        {'email':'eilinsolano0123@gmail.com',          'pass':'987654321',
+         'name':'Eilin Solano',   'role':'Usuario','color':'#00d4ff','initials':'ES'},
+        {'email':'matiasserrato156@gmail.com',         'pass':'matias serrato 123',
+         'name':'Matías Serrato','role':'Usuario','color':'#ff006e','initials':'MS'},
+        {'email':'123kevindavidgomezposada@gmail.com', 'pass':'123456789',
+         'name':'Kevin Gómez',   'role':'Usuario','color':'#00ff9f','initials':'KG'},
     ]
     for acc in SEED_ACCOUNTS:
-        if not User.query.filter_by(email=acc['email']).first():
-            db.session.add(User(
-                name=acc['name'], email=acc['email'],
-                password=generate_password_hash(acc['pass']),
-                role=acc['role'], color=acc['color'], initials=acc['initials']
-            ))
-    db.session.commit()
+        try:
+            if not User.query.filter_by(email=acc['email']).first():
+                db.session.add(User(
+                    name=acc['name'], email=acc['email'],
+                    password=generate_password_hash(acc['pass']),
+                    role=acc['role'], color=acc['color'], initials=acc['initials']
+                ))
+                db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            print(f"[SEED] Error con cuenta '{acc['email']}': {e}")
 
 
 # ─── HELPERS ───────────────────────────────────────────────────────────────────
@@ -578,15 +757,53 @@ def buy_ticket():
     total       = int(data.get('total', 0))
     payment     = data.get('payment', 'efectivo')
     combo       = data.get('combo', '')
+    date_str    = data.get('date', fecha_es(datetime.utcnow()))
+
+    # Token único para confirmar la compra por email
+    confirm_token = hashlib.sha256(
+        (code + user.email + str(datetime.utcnow().timestamp())).encode()
+    ).hexdigest()[:40]
+
     ticket = Ticket(
-        ticket_code=code, user_id=user.id,
-        movie_title=movie_title, show_time=show_time,
-        seats=seats, total=total,
-        payment_method=payment, combo_detail=combo
+        ticket_code    = code,
+        user_id        = user.id,
+        movie_title    = movie_title,
+        show_time      = show_time,
+        seats          = seats,
+        total          = total,
+        payment_method = payment,
+        combo_detail   = combo,
+        status         = 'pendiente',   # se activa al confirmar por email
+        confirm_token  = confirm_token
     )
     db.session.add(ticket)
     db.session.commit()
-    return jsonify({'success': True, 'ticket_code': code})
+
+    # Enviar email de confirmación (no bloqueante)
+    confirm_url = f"{APP_URL}/confirmar/{confirm_token}"
+    html = _build_confirmation_email(
+        user_name   = user.name,
+        ticket_code = code,
+        confirm_url = confirm_url,
+        movie_title = movie_title,
+        show_time   = show_time,
+        seats       = seats,
+        total       = total,
+        combo       = combo or 'Sin combos',
+        date_str    = date_str
+    )
+    _send_email_async(
+        to_email = user.email,
+        subject  = f'🎬 Confirma tu compra — {movie_title} · CINEMAX',
+        html_body = html
+    )
+
+    return jsonify({
+        'success':     True,
+        'ticket_code': code,
+        'status':      'pendiente',
+        'message':     f'Revisa tu correo {user.email} para confirmar la compra.'
+    })
 
 @app.route('/api/tickets', methods=['GET'])
 def get_tickets():
@@ -595,7 +812,7 @@ def get_tickets():
     user = result
     tickets = Ticket.query.filter_by(user_id=user.id).order_by(Ticket.purchased_at.desc()).all()
     return jsonify([{
-        'qrCode':       t.ticket_code,
+        'qrCode':      t.ticket_code,
         'movieTitle':  t.movie_title,
         'showTime':    t.show_time,
         'seats':       t.seats,
@@ -603,7 +820,7 @@ def get_tickets():
         'payment':     t.payment_method,
         'combo':       t.combo_detail or 'Sin combos',
         'date':        fecha_es(t.purchased_at),
-        'status':      t.status
+        'status':      t.status   # pendiente / activo / usado / cancelado
     } for t in tickets])
 
 @app.route('/api/tickets/validate', methods=['GET'])
@@ -624,6 +841,33 @@ def validate_ticket():
         'date':        t.purchased_at.strftime('%d/%m/%Y %H:%M') if t.purchased_at else ''
     })
 
+
+# ─── CONFIRM TICKET ───────────────────────────────────────────────────────────
+@app.route('/confirmar/<token>')
+def confirm_ticket(token):
+    ticket = Ticket.query.filter_by(confirm_token=token).first()
+    if not ticket:
+        return render_template('confirm_result.html',
+            success=False, message='Enlace de confirmación inválido o ya utilizado.')
+    if ticket.status == 'activo':
+        return render_template('confirm_result.html',
+            success=True, already=True,
+            ticket_code=ticket.ticket_code,
+            movie_title=ticket.movie_title,
+            show_time=ticket.show_time,
+            seats=ticket.seats,
+            total=ticket.total)
+    # Activar el tiquete
+    ticket.status        = 'activo'
+    ticket.confirm_token = None   # consumir el token (un solo uso)
+    db.session.commit()
+    return render_template('confirm_result.html',
+        success=True, already=False,
+        ticket_code=ticket.ticket_code,
+        movie_title=ticket.movie_title,
+        show_time=ticket.show_time,
+        seats=ticket.seats,
+        total=ticket.total)
 
 # ─── BOOT ──────────────────────────────────────────────────────────────────────
 with app.app_context():

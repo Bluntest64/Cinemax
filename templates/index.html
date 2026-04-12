@@ -1274,8 +1274,19 @@ main{position:relative;z-index:2;max-width:1400px;margin:0 auto;padding:0 2rem 4
   <div class="modal" style="max-width:520px;">
     <button class="modal-close" onclick="document.getElementById('qr-confirm-modal').classList.remove('active')">✕</button>
     <div style="padding:2rem;text-align:center;">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:3px;color:var(--neon-green);margin-bottom:.5rem;">✅ ¡COMPRA EXITOSA!</div>
-      <div style="font-family:'Orbitron',sans-serif;font-size:.6rem;color:var(--text-dim);letter-spacing:3px;margin-bottom:1.5rem;">GUARDA TU CÓDIGO QR</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:3px;color:var(--neon-green);margin-bottom:.5rem;">🎬 ¡SOLICITUD ENVIADA!</div>
+      <div style="font-family:'Orbitron',sans-serif;font-size:.6rem;color:var(--text-dim);letter-spacing:3px;margin-bottom:1rem;">REVISA TU CORREO PARA CONFIRMAR</div>
+
+      <!-- Banner de pendiente -->
+      <div id="qr-pending-banner"
+           style="display:none;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.35);
+                  border-radius:8px;padding:.85rem 1rem;margin-bottom:1.25rem;font-size:.82rem;
+                  color:var(--neon-gold);line-height:1.55;text-align:left;">
+        ⚠️ <strong>Tu tiquete está PENDIENTE.</strong><br>
+        Revisa tu bandeja de entrada y haz clic en
+        <strong>"Confirmar mi compra"</strong> para activar la entrada.
+      </div>
+
       <div id="qr-canvas" style="display:inline-block;padding:12px;background:white;border-radius:12px;margin-bottom:1.2rem;box-shadow:0 0 30px rgba(0,255,159,.3);"></div>
       <div style="font-family:'Orbitron',sans-serif;font-size:.9rem;color:var(--neon-gold);letter-spacing:2px;margin-bottom:1.5rem;" id="qr-modal-code"></div>
       <div class="qr-info-card">
@@ -1286,8 +1297,8 @@ main{position:relative;z-index:2;max-width:1400px;margin:0 auto;padding:0 2rem 4
         <div class="qr-info-row"><span>🍿</span><div id="qr-modal-combo"></div></div>
         <div class="qr-info-row"><span>💰</span><div><strong id="qr-modal-total"></strong></div></div>
       </div>
-      <div style="margin-top:1rem;font-size:.78rem;color:var(--text-dim);">Presenta este código en la taquilla de Multicines</div>
-      <button class="btn-primary" onclick="document.getElementById('qr-confirm-modal').classList.remove('active')" style="margin-top:1.2rem;">ACEPTAR</button>
+      <div style="margin-top:1rem;font-size:.78rem;color:var(--text-dim);">Este código se activará al confirmar por correo</div>
+      <button class="btn-primary" onclick="document.getElementById('qr-confirm-modal').classList.remove('active');document.getElementById('qr-pending-banner').style.display='none';" style="margin-top:1.2rem;">ENTENDIDO</button>
     </div>
   </div>
 </div>
@@ -1551,15 +1562,21 @@ function getPurchaseHistory() {
 }
 
 function showQRConfirmation(data) {
-  // Build QR visual (simple SVG QR-like pattern based on code)
-  document.getElementById('qr-modal-code').textContent = data.qrCode;
+  document.getElementById('qr-modal-code').textContent  = data.qrCode;
   document.getElementById('qr-modal-movie').textContent = data.movieTitle;
-  document.getElementById('qr-modal-date').textContent = data.date;
-  document.getElementById('qr-modal-time').textContent = data.showTime;
+  document.getElementById('qr-modal-date').textContent  = data.date;
+  document.getElementById('qr-modal-time').textContent  = data.showTime;
   document.getElementById('qr-modal-seats').textContent = data.seats;
   document.getElementById('qr-modal-combo').textContent = data.combo;
   document.getElementById('qr-modal-total').textContent = '$' + data.total.toLocaleString('es-CO') + ' COP';
   renderQRSVG(data.qrCode);
+
+  // Mostrar aviso de pendiente si el correo fue enviado
+  const pendingBanner = document.getElementById('qr-pending-banner');
+  if (pendingBanner) {
+    pendingBanner.style.display = 'block';
+  }
+
   document.getElementById('qr-confirm-modal').classList.add('active');
 }
 
@@ -2081,13 +2098,26 @@ async function openMyTickets() {
     return;
   }
   list.innerHTML = [...purchaseHistory].reverse().map(t => `
-    <div class="ticket-item">
+    <div class="ticket-item" style="${t.status==='pendiente' ? 'border-color:rgba(255,215,0,.4);' : ''}">
       <div style="flex:1;">
         <div class="ticket-code">${t.qrCode}</div>
+        ${t.status === 'pendiente' ? `
+          <div style="display:inline-block;padding:.2rem .6rem;border-radius:3px;
+               font-family:'Orbitron',sans-serif;font-size:.55rem;letter-spacing:1.5px;
+               border:1px solid var(--neon-gold);color:var(--neon-gold);
+               background:rgba(255,215,0,.08);margin-bottom:.4rem;">
+            ⏳ PENDIENTE DE CONFIRMACIÓN
+          </div>` : (t.status === 'usado' ? `
+          <div style="display:inline-block;padding:.2rem .6rem;border-radius:3px;
+               font-family:'Orbitron',sans-serif;font-size:.55rem;letter-spacing:1.5px;
+               border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.4);
+               background:rgba(255,255,255,.04);margin-bottom:.4rem;">
+            ✅ USADO</div>` : '')}
         <div class="ticket-movie">${t.movieTitle}</div>
         <div style="font-size:.8rem;color:var(--text-dim);margin-top:.25rem;">🕐 ${t.showTime} &nbsp;·&nbsp; 💺 ${t.seats}</div>
         <div style="font-size:.75rem;color:var(--text-dim);margin-top:.2rem;">📅 ${t.date}</div>
         ${t.combo !== 'Sin combos' ? `<div style="font-size:.72rem;color:var(--neon-gold);margin-top:.2rem;">🍿 ${t.combo}</div>` : ''}
+        ${t.status === 'pendiente' ? `<div style="font-size:.7rem;color:var(--neon-gold);margin-top:.4rem;">📧 Revisa tu correo y confirma la compra</div>` : ''}
       </div>
       <div style="text-align:right;display:flex;flex-direction:column;gap:.5rem;align-items:flex-end;min-width:90px;">
         <div style="font-family:'Orbitron',sans-serif;font-size:.75rem;color:var(--neon-gold);">$${t.total.toLocaleString('es-CO')} COP</div>
