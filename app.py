@@ -124,6 +124,16 @@ LOCATION_DATA = {
 MOVIES_DATA = [
     # ── PELÍCULAS EXISTENTES (títulos corregidos) ──────────────────────────────
     {
+        "title":"Rascal Does Not Dream of a Dreaming Girl (2019)",
+        "genre":"Anime", "duration":90,"rating":"PG-13",
+        "age_limit":"",
+        "tags":"Drama, Romance, Fantasía sobrenatural, profunda, conmovedora.",
+        "director":"Sōichi Masui", "produced":"CloverWorks",
+        "language":"Subtitulada",
+        "description":" La historia aborda temas de maduración, la pérdida y la aceptación, centrándose en el primer amor de Sakuta, Shoko Makinohara, y las complicaciones temporales que trae a la relación con Mai.",
+        "poster_url":"static\posters\RascalDoesNotDramofaDreamingGirl(2019).jpg","display_order":"1",
+    },
+    {
         "title":"Mulan",
         "genre":"Acción / Aventura","duration":115,"rating":"PG-13",
         "age_limit":13,"age_label":"+13",
@@ -141,7 +151,7 @@ MOVIES_DATA = [
         "director":"James Cameron","cast_list":"Leonardo DiCaprio, Kate Winslet, Billy Zane",
         "language":"Subtitulada / Doblada",
         "description":"Una historia de amor que trasciende clases sociales a bordo del famoso transatlántico. Basada en el hundimiento del RMS Titanic en 1912.",
-        "poster_url":"/static/posters/titanic.jpg","display_order":8
+        "poster_url":"/static/posters/titanic.jpg","display_order":-1
     },
     {
         "title":"Doctor Strange en el Multiverso de la Locura",
