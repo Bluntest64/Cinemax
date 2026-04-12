@@ -374,7 +374,7 @@ MOVIES_DATA = [
     },
     {
         "title": "Rascal Does Not Dream of a Sister Venturing Out (2023)",       
-        "genre": "Romance / Drama",       # ← ej: "Acción / Aventura"
+        "genre": "Romance / Adolescentes",       # ← ej: "Acción / Aventura"
         "duration": 73, "rating": "PG-13",# ← minutos (número) \ ← PG/PG-13/R/NR/G
         "age_limit": 13, "age_label": "+13", # ←0/7/13/16/18 \← "ATP"/"+7"/"+13"/"+16"/"+18"
         "tags": "Drama,Anime,Adolescentes,Japón,melancólico,superación,familia", # ← sin espacios tras comas
@@ -389,12 +389,12 @@ MOVIES_DATA = [
         "title": "Rascal Does Not Dream of a Dreaming Girl (2019)",
         "genre": "Romance / Drama",
         "duration": 90, "rating": "PG-13", "age_limit": 13, "age_label": "+13",
-        "tags": "Romance,Drama,Anime,Adolescentes,Japón,profundo",
+        "tags": "Romance,Drama,Anime,Adolescentes,Japón,emocional",
         "director": "Souichi Masui",
         "cast_list": "Kaito Ishikawa, Asami Seto, Atsumi Tanezaki",
         "language": "Subtitulada",
         "description": "Sakuta Azusagawa, quien conoce la existencia del Síndrome de la Pubertad, se enfrenta a un nuevo caso: una chica que vive en su interior y en la realidad al mismo tiempo.",
-        "poster_url": "/static/posters/rascal.jpg",
+        "poster_url": "/static/posters/RascalDoesNotDramofaDreamingGirl(2019).jpg",
         "display_order": -1
     },
     {
