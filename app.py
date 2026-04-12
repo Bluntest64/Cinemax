@@ -361,18 +361,15 @@ MOVIES_DATA = [
         "display_order": -4
     },
     {
-        "title": "TÍTULO DE LA PELÍCULA AQUÍ",
-        "genre": "Género / Subgénero",
-        "duration": 120,
-        "rating": "PG-13",
-        "age_limit": 13,
-        "age_label": "+13",
-        "tags": "Etiqueta1,Etiqueta2,Etiqueta3",
-        "director": "Nombre del Director",
-        "cast_list": "Actor 1, Actor 2, Actor 3",
-        "language": "Subtitulada / Doblada",
-        "description": "Sinopsis de la película.",
-        "poster_url": "/static/posters/ARCHIVO.jpg",
+        "title": "Rascal Does Not Dream of a Knapsack Kid (2023)",
+        "genre": "Romance / Drama",
+        "duration": 75, "rating": "PG-13", "age_limit": 13, "age_label": "+13",
+        "tags": "Drama,Romance,Sobrenatural,Escolar,Emotiva,Adolescentes",
+        "director": "Sōichi Masui",
+        "cast_list": "Kaito Ishikawa (Sakuta Azusagawa), Asami Seto (Mai Sakurajima), Yurika Kubo (Kaede Azusagawa)",
+        "language": "Subtitulada",
+        "description": "Una misteriosa chica con apariencia infantil aparece frente a Sakuta, afirmando ser una versión más joven de Mai. Mientras la fecha de graduación se acerca, Sakuta se ve envuelto nuevamente en fenómenos del 'Síndrome de la Adolescencia', donde los sentimientos reprimidos y los miedos al futuro toman forma. La historia explora el crecimiento, la identidad y el significado de avanzar hacia una nueva etapa de la vida, poniendo a prueba los vínculos entre Sakuta, Mai y quienes los rodean.",
+        "poster_url": "/static/posters/RascalDoesNotDreamofaKnapsackKid.jpg",
         "display_order": -3
     },
     {
@@ -380,16 +377,16 @@ MOVIES_DATA = [
         "genre": "Romance / Drama",       # ← ej: "Acción / Aventura"
         "duration": 73, "rating": "PG-13",# ← minutos (número) \ ← PG/PG-13/R/NR/G
         "age_limit": 13, "age_label": "+13", # ←0/7/13/16/18 \← "ATP"/"+7"/"+13"/"+16"/"+18"
-        "tags": "Romance,Drama,Anime,Adolescentes,Japón,melancólico,superación", # ← sin espacios tras comas
+        "tags": "Drama,Anime,Adolescentes,Japón,melancólico,superación,familia", # ← sin espacios tras comas
         "director": "Sōichi Masui",                   # ← director
         "cast_list": "Kaito Ishikawa (Sakuta Azusagawa), Asami Seto (Mai Sakurajima), Yurika Kubo (Kaede Azusagawa)",  # ← actores principales
         "language": "Subtitulada",                    # ← idioma
-        "description": "Sinopsis de la película.",    # ← descripción corta
+        "description": "Kaede, la hermana menor de Sakuta, decide dar un paso importante: volver a salir al mundo después de haber pasado mucho tiempo aislada. Mientras intenta enfrentarse a sus miedos y recuperar una vida normal, Sakuta la apoya en cada momento, acompañándola en este proceso lleno de emociones, recuerdos y crecimiento personal. La historia se centra en la superación, la familia y el valor necesario para avanzar hacia el futuro.",    # ← descripción corta
         "poster_url": "/static/posters/RascalDoesNotDramofaSisterVenturingOut(2023).jpg",  # ← nombre del jpg en static/posters/
         "display_order": -2                           # ← no toques esto
     },
     {
-        "title": "Rascal Does Not Dream of a Dreaming Girl",
+        "title": "Rascal Does Not Dream of a Dreaming Girl (2019)",
         "genre": "Romance / Drama",
         "duration": 90, "rating": "PG-13", "age_limit": 13, "age_label": "+13",
         "tags": "Romance,Drama,Anime,Adolescentes,Japón,profundo",
