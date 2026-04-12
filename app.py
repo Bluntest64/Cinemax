@@ -376,25 +376,23 @@ MOVIES_DATA = [
         "display_order": -3
     },
     {
-        "title": "TÍTULO DE LA PELÍCULA AQUÍ",       # ← cambia esto
-        "genre": "Género / Subgénero",                # ← ej: "Acción / Aventura"
-        "duration": 120,                              # ← minutos (número)
-        "rating": "PG-13",                            # ← PG / PG-13 / R / NR / G
-        "age_limit": 13,                              # ← 0 / 7 / 13 / 16 / 18
-        "age_label": "+13",                           # ← "ATP" / "+7" / "+13" / "+16" / "+18"
-        "tags": "Etiqueta1,Etiqueta2,Etiqueta3",      # ← sin espacios tras comas
-        "director": "Nombre del Director",            # ← director
-        "cast_list": "Actor 1, Actor 2, Actor 3",     # ← actores principales
-        "language": "Subtitulada / Doblada",          # ← idioma
+        "title": "Rascal Does Not Dream of a Sister Venturing Out (2023)",       
+        "genre": "Romance / Drama",       # ← ej: "Acción / Aventura"
+        "duration": 73, "rating": "PG-13",# ← minutos (número) \ ← PG/PG-13/R/NR/G
+        "age_limit": 13, "age_label": "+13", # ←0/7/13/16/18 \← "ATP"/"+7"/"+13"/"+16"/"+18"
+        "tags": "Romance,Drama,Anime,Adolescentes,Japón,melancólico,superación", # ← sin espacios tras comas
+        "director": "Sōichi Masui",                   # ← director
+        "cast_list": "Kaito Ishikawa (Sakuta Azusagawa), Asami Seto (Mai Sakurajima), Yurika Kubo (Kaede Azusagawa)",  # ← actores principales
+        "language": "Subtitulada",                    # ← idioma
         "description": "Sinopsis de la película.",    # ← descripción corta
-        "poster_url": "/static/posters/ARCHIVO.jpg",  # ← nombre del jpg en static/posters/
+        "poster_url": "/static/posters/RascalDoesNotDramofaSisterVenturingOut(2023).jpg",  # ← nombre del jpg en static/posters/
         "display_order": -2                           # ← no toques esto
     },
     {
         "title": "Rascal Does Not Dream of a Dreaming Girl",
         "genre": "Romance / Drama",
         "duration": 90, "rating": "PG-13", "age_limit": 13, "age_label": "+13",
-        "tags": "Romance,Drama,Anime,Adolescentes,Japón",
+        "tags": "Romance,Drama,Anime,Adolescentes,Japón,profundo",
         "director": "Souichi Masui",
         "cast_list": "Kaito Ishikawa, Asami Seto, Atsumi Tanezaki",
         "language": "Subtitulada",
