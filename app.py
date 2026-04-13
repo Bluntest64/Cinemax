@@ -60,7 +60,7 @@ def _send_email_async(to_email: str, subject: str, html_body: str):
     def _send():
         try:
             payload = _json.dumps({
-                'sender':      {'name': 'CINEMAX Experience', 'email': '123kevindavidgomezposada@gmail.com'},
+                'sender':      {'name': 'CINEMAX Experience', 'email': 'MS_KUaAeu@test-vz9dlemwwpn4kj50.mlsender.net'},
                 'to':          [{'email': to_email}],
                 'subject':     subject,
                 'htmlContent': html_body,
