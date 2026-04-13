@@ -1166,23 +1166,6 @@ def cleanup_placeholders():
             db.session.rollback()
             print(f"[CLEANUP] Error: {e}")
 
-    # También eliminar entradas sin imagen ni título exacto (typos en el título)
-    # que puedan haber quedado de inserciones manuales
-    imposters = Movie.query.filter(
-        Movie.title.ilike('%rascal%dream%'),
-        ~Movie.title.ilike('%dreaming girl%')
-    ).all()
-    for m in imposters:
-        try:
-            Showtime.query.filter_by(movie_id=m.id).delete()
-            db.session.delete(m)
-            db.session.commit()
-            print(f"[DEDUP] Eliminado impostór id={m.id} title='{m.title}'")
-        except Exception as e:
-            db.session.rollback()
-            print(f"[DEDUP] Error con impostór id={m.id}: {e}")
-
-
 # ─── ADMIN: GESTIÓN DE PELÍCULAS ─────────────────────────────────────────────
 @app.route('/api/admin/movies', methods=['GET'])
 def admin_get_movies():
