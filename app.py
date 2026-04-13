@@ -19,7 +19,7 @@ def fecha_es(dt):
 import os, uuid, random, hashlib
 
 # ─── CONFIGURACIÓN DE EMAIL ────────────────────────────────────────────────────
-RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')  # resend.com API key
+BREVO_API_KEY = os.environ.get('BREVO_API_KEY', '')  # brevo.com API key
 APP_URL        = os.environ.get('APP_URL', 'http://localhost:5000')  # URL pública del sitio
 
 def _qr_svg_inline(code: str, size: int = 200) -> str:
@@ -53,30 +53,31 @@ def _qr_svg_inline(code: str, size: int = 200) -> str:
     return svg
 
 def _send_email_async(to_email: str, subject: str, html_body: str):
-    """Envía el email via Resend API (funciona en Render Free — usa HTTP/443)."""
-    if not RESEND_API_KEY:
-        print(f"[EMAIL] RESEND_API_KEY no configurada — email NO enviado a {to_email}")
+    """Envía el email via Brevo API (funciona en Render Free — usa HTTP/443)."""
+    if not BREVO_API_KEY:
+        print(f"[EMAIL] BREVO_API_KEY no configurada — email NO enviado a {to_email}")
         return
     def _send():
         try:
             payload = _json.dumps({
-                'from':    'CINEMAX Experience <onboarding@resend.dev>',
-                'to':      [to_email],
-                'subject': subject,
-                'html':    html_body,
+                'sender':      {'name': 'CINEMAX Experience', 'email': '123kevindavidgomezposada@gmail.com'},
+                'to':          [{'email': to_email}],
+                'subject':     subject,
+                'htmlContent': html_body,
             }).encode('utf-8')
             req = urllib.request.Request(
-                'https://api.resend.com/emails',
+                'https://api.brevo.com/v3/smtp/email',
                 data    = payload,
                 headers = {
-                    'Authorization': f'Bearer {RESEND_API_KEY}',
-                    'Content-Type':  'application/json',
+                    'api-key':      BREVO_API_KEY,
+                    'Content-Type': 'application/json',
+                    'Accept':       'application/json',
                 },
-                method  = 'POST'
+                method = 'POST'
             )
             with urllib.request.urlopen(req, timeout=15) as resp:
                 result = _json.loads(resp.read())
-                print(f"[EMAIL] Enviado a {to_email} — id: {result.get('id','?')}")
+                print(f"[EMAIL] Enviado a {to_email} — messageId: {result.get('messageId','?')}")
         except urllib.error.HTTPError as e:
             body = e.read().decode('utf-8', errors='ignore')
             print(f"[EMAIL] ERROR HTTP {e.code} enviando a {to_email}: {body}")
